@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Document OCR Scanner & Similarity Detector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CDNs for Offline Browser Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 32px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 35px;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        .upload-grid {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .upload-box {
+            flex: 1;
+            min-width: 290px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 2px dashed #475569;
+            padding: 25px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        .upload-box:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+        }
+        .upload-box h3 {
+            margin-top: 0;
+            color: #e2e8f0;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+            font-weight: 600;
+        }
+        input[type="file"] {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        textarea {
+            width: 100%;
+            height: 130px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            box-sizing: border-box;
+            color: #f1f5f9;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        textarea:focus {
+            border-color: #38bdf8;
+            outline: none;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+        }
+        .filter-box {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-box input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #38bdf8;
+        }
+        .filter-box label {
+            font-size: 14px;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        }
+        .results-box {
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 35px;
+            display: none;
+        }
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #38bdf8;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        .score-circle {
+            font-size: 38px;
+            font-weight: 700;
+            color: #ffffff;
+            background: #0f172a;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            flex-shrink: 0;
+        }
+        .score-details {
+            flex: 1;
+        }
+        .score-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .score-status {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+        .score-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        .stats-text {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 25px;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .diff-grid {
+            display: flex;
+            gap: 25px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .diff-col {
+            flex: 1;
+            min-width: 320px;
+        }
+        .diff-col strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            font-size: 15px;
+        }
+        .diff-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 18px;
+            background-color: #0f172a;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #cbd5e1;
+        }
+        .highlight-match {
+            background-color: rgba(253, 150, 68, 0.2); 
+            border-bottom: 2px solid #fda964; 
+            padding: 2px; 
+            border-radius: 2px;
+        }
+        .legend {
+            font-size: 13px;
+            color: #fda964;
+            margin-bottom: 15px;
+            background: rgba(253, 150, 68, 0.08);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(253, 150, 68, 0.2);
+            font-weight: 500;
+        }
+        
+        /* Loading Overlay Style */
+        #loader-overlay {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(15, 23, 42, 0.95); 
+            z-index: 9999; 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column;
+        }
+        .spinner {
+            border: 6px solid #1e293b; 
+            border-top: 6px solid #38bdf8; 
+            border-radius: 50%; 
+            width: 60px; 
+            height: 60px; 
+            animation: spin 1s linear infinite; 
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+        .loading-text {
+            font-size: 18px; 
+            font-weight: 700; 
+            color: #f8fafc; 
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        .loading-subtext {
+            font-size: 14px; 
+            color: #94a3b8; 
+            margin-top: 8px;
+            text-align: center;
+            max-width: 80%;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Scanner Loading Overlay -->
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <div id="status-title" class="loading-text">🔍 PREPARING FILES...</div>
+        <div id="status-desc" class="loading-subtext">Initializing document scanner. Please wait.</div>
+    </div>
+
+    <div class="container">
+        <h1>📄 AI Document OCR Scanner & Similarity Detector</h1>
+        <div class="subtitle">100% browser-based text extraction and similarity comparison</div>
+        
+        <div class="upload-grid">
+            <div class="upload-box">
+                <h3>Document A (Photo / File / Text)</h3>
+                <input type="file" id="file1" accept=".txt,.pdf,.docx,.png,.jpg,.jpeg">
+                <textarea id="text1" placeholder="Or paste Document A text here..."></textarea>
+            </div>
+            
+            <div class="upload-box">
+                <h3>Document B (Photo / File / Text)</h3>
+                <input type="file" id="file2" accept=".txt,.pdf,.docx,.png,.jpg,.jpeg">
+                <textarea id="text2" placeholder="Or paste Document B text here..."></textarea>
+            </div>
+        </div>
+        
+        <div class="filter-box">
+            <input type="checkbox" id="ignore_quotes">
+            <label for="ignore_quotes">💬 Ignore quoted text (e.g. "citations") in similarity calculation</label>
+        </div>
+        
+        <button id="scan-btn" onclick="startScanner()">🔍 Scan & Compare Documents</button>
+
+        <!-- Error box -->
+        <div id="error-box" style="display: none; color: #f87171; margin-top: 20px; font-weight: bold; text-align: center; background: rgba(248, 113, 113, 0.15); padding: 12px; border-radius: 8px; border: 1px solid rgba(248, 113, 113, 0.2);"></div>
+
+        <!-- Result Box (Comparison / Single Scanner) -->
+        <div id="results-area" class="results-box">
+            <h2 id="result-title">📊 Comparison Result</h2>
+            
+            <div class="score-container" id="score-card">
+                <div class="score-circle" id="score-num">0%</div>
+                <div class="score-details">
+                    <div class="score-label" id="score-top-label">Similarity Match</div>
+                    <div class="score-status" id="score-status">Calculating...</div>
+                    <div class="score-desc" id="score-desc">Details</div>
+                </div>
+            </div>
+
+            <div class="stats-text" id="stats-summary">
+                📝 Word counts summary
+            </div>
+
+            <h2 id="preview-title">👁️ Text Comparison Preview</h2>
+            <div class="legend" id="preview-legend">
+                ⚠️ Orange Highlight indicates identical matching words found in both files.
+            </div>
+            
+            <div class="diff-grid">
+                <div class="diff-col">
+                    <strong id="label-docA">Document A Preview</strong>
+                    <div id="img-previewA" style="margin-top: 8px; margin-bottom: 12px; display:none;">
+                        <span style="font-size: 13px; color: #94a3b8; font-weight: bold; display: block; margin-bottom: 5px;">📷 Uploaded Source Photo:</span>
+                        <img id="img-srcA" style="max-height: 160px; max-width: 100%; border-radius: 8px; border: 1px solid #334155; display: block; object-fit: contain;">
+                    </div>
+                    <div class="diff-box" id="diff-contentA"></div>
+                </div>
+                <div class="diff-col">
+                    <strong id="label-docB">Document B Preview</strong>
+                    <div id="img-previewB" style="margin-top: 8px; margin-bottom: 12px; display:none;">
+                        <span style="font-size: 13px; color: #94a3b8; font-weight: bold; display: block; margin-bottom: 5px;">📷 Uploaded Source Photo:</span>
+                        <img id="img-srcB" style="max-height: 160px; max-width: 100%; border-radius: 8px; border: 1px solid #334155; display: block; object-fit: contain;">
+                    </div>
+                    <div class="diff-box" id="diff-contentB"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set up PDF.js
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Display Uploaded Photo preview locally
+        document.getElementById('file1').addEventListener('change', function(e) {
+            handleImagePreview(e.target, 'img-previewA', 'img-srcA');
+        });
+        document.getElementById('file2').addEventListener('change', function(e) {
+            handleImagePreview(e.target, 'img-previewB', 'img-srcB');
+        });
+
+        function handleImagePreview(input, containerId, imgId) {
+            const file = input.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(imgId).src = e.target.result;
+                    document.getElementById(containerId).style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById(containerId).style.display = 'none';
+            }
+        }
+
+        // Main parser routing
+        async function extractText(fileElement, textareaId, docLabel) {
+            const file = document.getElementById(fileElement).files[0];
+            if (!file) {
+                return document.getElementById(textareaId).value.trim();
+            }
+
+            const filename = file.name.toLowerCase();
+            updateStatus(`📄 Reading ${file.name}...`, "Extracting text structure.");
+
+            // Standard Text File
+            if (filename.endsWith('.txt')) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsText(file);
+                });
+            }
+            
+            // DOCX File
+            else if (filename.endsWith('.docx')) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+                            resolve(result.value);
+                        } catch (err) {
+                            reject("Error reading Word DOCX file.");
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+            
+            // PDF File
+            else if (filename.endsWith('.pdf')) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
+                            let text = "";
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const content = await page.getTextContent();
+                                text += content.items.map(item => item.str).join(" ") + "\n";
+                            }
+                            resolve(text);
+                        } catch (err) {
+                            reject("Error reading PDF file.");
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+            
+            // Image OCR File
+            else if (file.type.startsWith('image/')) {
+                updateStatus(`📷 Scanning Image (${docLabel})...`, "Running OCR engine in browser...");
+                return new Promise((resolve, reject) => {
+                    Tesseract.recognize(
+                        file,
+                        'eng',
+                        {
+                            logger: m => {
+                                if (m.status === 'recognizing text') {
+                                    const pct = Math.round(m.progress * 100);
+                                    updateStatus(`📷 Scanning Image (${docLabel}): ${pct}%`, "Reading handwritten/printed characters...");
+                                }
+                            }
+                        }
+                    ).then(({ data: { text } }) => {
+                        resolve(text);
+                    }).catch(err => {
+                        reject("OCR scan failed: " + err);
+                    });
+                });
+            }
+
+            return "";
+        }
+
+        function updateStatus(title, desc) {
+            document.getElementById('status-title').innerText = title.toUpperCase();
+            document.getElementById('status-desc').innerText = desc;
+        }
+
+        // Core algorithm: Clean text
+        function cleanText(text) {
+            return text.toLowerCase().replace(/[^\w\s]/g, '').trim();
+        }
+
+        // Core algorithm: Cosine Similarity (TF-IDF approximation)
+        function calculateCosine(text1, text2) {
+            const t1 = cleanText(text1);
+            const t2 = cleanText(text2);
+            if (!t1 || !t2) return 0;
+
+            const w1 = t1.split(/\s+/);
+            const w2 = t2.split(/\s+/);
+
+            // Vocabulary union
+            const vocab = new Set([...w1, ...w2]);
+
+            // Frequency bags
+            const freq1 = {};
+            const freq2 = {};
+            vocab.forEach(word => {
+                freq1[word] = 0;
+                freq2[word] = 0;
+            });
+            w1.forEach(word => freq1[word]++);
+            w2.forEach(word => freq2[word]++);
+
+            // Vector math
+            let dotProduct = 0;
+            let mag1 = 0;
+            let mag2 = 0;
+            vocab.forEach(word => {
+                dotProduct += freq1[word] * freq2[word];
+                mag1 += freq1[word] * freq1[word];
+                mag2 += freq2[word] * freq2[word];
+            });
+
+            if (mag1 === 0 || mag2 === 0) return 0;
+            return (dotProduct / (Math.sqrt(mag1) * Math.sqrt(mag2))) * 100;
+        }
+
+        // Core algorithm: Jaccard Index
+        function calculateJaccard(text1, text2) {
+            const t1 = cleanText(text1);
+            const t2 = cleanText(text2);
+            if (!t1 || !t2) return 0;
+
+            const words1 = new Set(t1.split(/\s+/));
+            const words2 = new Set(t2.split(/\s+/));
+
+            const intersection = new Set([...words1].filter(x => words2.has(x)));
+            const union = new Set([...words1, ...words2]);
+
+            if (union.size === 0) return 0;
+            return (intersection.size / union.size) * 100;
+        }
+
+        // Turnitin-style highlighter
+        function highlightDiff(text1, text2) {
+            const words1 = text1.split(/\s+/);
+            const words2 = text2.split(/\s+/);
+
+            const set1 = new Set(words1.map(w => cleanText(w)));
+            const set2 = new Set(words2.map(w => cleanText(w)));
+
+            const html1 = words1.map(word => {
+                const cleaned = cleanText(word);
+                if (cleaned && set2.has(cleaned)) {
+                    return `<span class="highlight-match">${escapeHTML(word)}</span>`;
+                }
+                return escapeHTML(word);
+            }).join(' ');
+
+            const html2 = words2.map(word => {
+                const cleaned = cleanText(word);
+                if (cleaned && set1.has(cleaned)) {
+                    return `<span class="highlight-match">${escapeHTML(word)}</span>`;
+                }
+                return escapeHTML(word);
+            }).join(' ');
+
+            return [html1, html2];
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // MAIN CONTROL FLOW
+        async function startScanner() {
+            const overlay = document.getElementById('loader-overlay');
+            const errorBox = document.getElementById('error-box');
+            const resultsArea = document.getElementById('results-area');
+
+            errorBox.style.display = 'none';
+            overlay.style.display = 'flex';
+
+            try {
+                // Step 1: Extract texts
+                const t1 = await extractText('file1', 'text1', 'Document A');
+                const t2 = await extractText('file2', 'text2', 'Document B');
+
+                // Fill back into textareas so user sees the extracted text
+                if (t1) document.getElementById('text1').value = t1;
+                if (t2) document.getElementById('text2').value = t2;
+
+                if (!t1.trim() && !t2.trim()) {
+                    throw "Please upload files or paste text in at least one box to scan/compare.";
+                }
+
+                // Scenario A: Single OCR Scanner Mode
+                if (t1.trim() && !t2.trim()) {
+                    renderSingleScannerResult('A', t1, document.getElementById('file1').files[0]);
+                }
+                else if (t2.trim() && !t1.trim()) {
+                    renderSingleScannerResult('B', t2, document.getElementById('file2').files[0]);
+                }
+                // Scenario B: Plagiarism Compare Mode
+                else {
+                    renderComparisonResult(t1, t2);
+                }
+
+                resultsArea.style.display = 'block';
+            } catch (err) {
+                errorBox.innerText = err;
+                errorBox.style.display = 'block';
+                resultsArea.style.display = 'none';
+            } finally {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function renderSingleScannerResult(target, text, file) {
+            document.getElementById('result-title').innerText = "🔍 Single OCR Scanner Output";
+            document.getElementById('preview-title').innerText = "👁️ Extracted Text Content";
+            document.getElementById('preview-legend').style.display = "none";
+
+            // Score Card Adjustments
+            document.getElementById('score-card').style.borderLeftColor = "#38bdf8";
+            document.getElementById('score-num').innerText = "OCR";
+            document.getElementById('score-num').style.borderColor = "#38bdf8";
+            document.getElementById('score-num').style.boxShadow = "0 0 20px rgba(56, 189, 248, 0.2)";
+            document.getElementById('score-status').innerText = "Text Scanned Successfully!";
+            document.getElementById('score-status').style.color = "#38bdf8";
+            
+            const words = text.trim().split(/\s+/).length;
+            const chars = text.length;
+            const name = file ? file.name : `Document ${target}`;
+            document.getElementById('score-desc').innerHTML = `Scanned <strong>${words} words</strong> (${chars} characters) from <strong>${name}</strong>.`;
+
+            // Display text only in one box, hide the other
+            document.getElementById('stats-summary').style.display = 'none';
+
+            if (target === 'A') {
+                document.getElementById('label-docA').innerText = "Document A Source";
+                document.getElementById('diff-contentA').innerText = text;
+                document.getElementById('label-docB').parentNode.style.display = 'none'; // hide doc B column
+                document.getElementById('label-docA').parentNode.style.display = 'block'; // show doc A column
+            } else {
+                document.getElementById('label-docB').innerText = "Document B Source";
+                document.getElementById('diff-contentB').innerText = text;
+                document.getElementById('label-docA').parentNode.style.display = 'none'; // hide doc A column
+                document.getElementById('label-docB').parentNode.style.display = 'block'; // show doc B column
+            }
+        }
+
+        function renderComparisonResult(text1, text2) {
+            document.getElementById('result-title').innerText = "📊 Comparison Result";
+            document.getElementById('preview-title').innerText = "👁️ Text Comparison Preview";
+            document.getElementById('preview-legend').style.display = "block";
+            
+            // Show both columns
+            document.getElementById('label-docA').parentNode.style.display = 'block';
+            document.getElementById('label-docB').parentNode.style.display = 'block';
+            document.getElementById('label-docA').innerText = "Document A Preview";
+            document.getElementById('label-docB').innerText = "Document B Preview";
+
+            // Quotes exclusion calculation
+            let calc1 = text1;
+            let calc2 = text2;
+            if (document.getElementById('ignore_quotes').checked) {
+                const quoteRegex = /"[^"]*"|'[^']*'|“[^”]*”/g;
+                calc1 = calc1.replace(quoteRegex, '');
+                calc2 = calc2.replace(quoteRegex, '');
+            }
+
+            const cosine = calculateCosine(calc1, calc2);
+            const jaccard = calculateJaccard(calc1, calc2);
+            const score = (cosine + jaccard) / 2;
+            const scoreInt = Math.round(score);
+
+            // Classification
+            let status, desc, color;
+            if (scoreInt >= 90) {
+                status = "Direct Copy / Duplicate";
+                desc = "These documents are almost completely identical. High risk of direct copy-paste.";
+                color = "#f87171"; // Red
+            } else if (scoreInt >= 70) {
+                status = "Highly Similar";
+                desc = "Many sentences and phrases match exactly. Significant rewriting or copying is present.";
+                color = "#fb923c"; // Orange
+            } else if (scoreInt >= 40) {
+                status = "Moderately Similar";
+                desc = "Some parts of the text match, but the documents are partially different.";
+                color = "#facc15"; // Yellow
+            } else if (scoreInt >= 15) {
+                status = "Slightly Similar";
+                desc = "Very low similarity. A few common words match, but the text is mostly unique.";
+                color = "#60a5fa"; // Blue
+            } else {
+                status = "Completely Unique";
+                desc = "No significant matching text found. These are completely independent files.";
+                color = "#4ade80"; // Green
+            }
+
+            // Render score
+            document.getElementById('score-card').style.borderLeftColor = color;
+            document.getElementById('score-num').innerText = `${scoreInt}%`;
+            document.getElementById('score-num').style.borderColor = color;
+            document.getElementById('score-num').style.boxShadow = `0 0 20px ${color}40`;
+            document.getElementById('score-status').innerText = status;
+            document.getElementById('score-status').style.color = color;
+            document.getElementById('score-desc').innerText = desc;
+
+            // Stats
+            const words1 = text1.trim().split(/\s+/).length;
+            const words2 = text2.trim().split(/\s+/).length;
+            document.getElementById('stats-summary').style.display = 'block';
+            document.getElementById('stats-summary').innerHTML = `📝 <strong>Word Counts:</strong> Document A contains <strong>${words1} words</strong> | Document B contains <strong>${words2} words</strong>`;
+
+            // Higlight matching words
+            const [diffA, diffB] = highlightDiff(text1, text2);
+            document.getElementById('diff-contentA').innerHTML = diffA;
+            document.getElementById('diff-contentB').innerHTML = diffB;
+        }
+    </script>
+
+</body>
+</html>

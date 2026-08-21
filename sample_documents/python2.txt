@@ -1,0 +1,4 @@
+Python is a widely used programming language.
+It is commonly used in machine learning,
+artificial intelligence, data science and web applications.
+Python provides simple syntax and a large collection of libraries.

@@ -1,0 +1,8 @@
+__pycache__/
+.EasyOCR/
+*.zip
+*.log
+*.ps1
+download_ocr_models.py
+app.py
+requirements.txt

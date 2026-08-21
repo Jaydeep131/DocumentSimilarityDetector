@@ -1,0 +1,4 @@
+Computer networks allow multiple devices to communicate.
+Networking uses protocols such as TCP and IP.
+Routers and switches transfer data between devices.
+Network security protects systems from unauthorized access.
