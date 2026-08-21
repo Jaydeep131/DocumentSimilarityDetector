@@ -216,26 +216,6 @@
             margin-bottom: 30px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
-        .score-circle {
-            font-size: 38px;
-            font-weight: 700;
-            color: #ffffff;
-            background: #0f172a;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 4px solid #38bdf8;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
-            flex-shrink: 0;
-            animation: pulseScale 1s ease-out;
-        }
-        @keyframes pulseScale {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-        }
         .score-details {
             flex: 1;
         }
@@ -290,7 +270,7 @@
         }
         .copy-btn {
             padding: 4px 10px;
-            font-size: 12px;
+            font-size: 20px;
             border-radius: 4px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
@@ -427,7 +407,16 @@
             <h2 id="result-title">📊 Comparison Result</h2>
             
             <div class="score-container" id="score-card">
-                <div class="score-circle" id="score-num">0%</div>
+                <!-- Stack SVG Circle Gauge -->
+                <div style="position: relative; width: 110px; height: 110px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 120 120" width="110" height="110" style="transform: rotate(-90deg); position: absolute; top: 0; left: 0;">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="10"></circle>
+                        <circle id="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="#38bdf8" stroke-width="10" 
+                                stroke-dasharray="326.7" stroke-dashoffset="326.7" stroke-linecap="round" 
+                                style="transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease;"></circle>
+                    </svg>
+                    <div id="score-num" style="font-size: 26px; font-weight: 700; color: #ffffff; z-index: 2; transition: color 0.5s ease; text-shadow: 0 0 10px rgba(0,0,0,0.5);">0%</div>
+                </div>
                 <div class="score-details">
                     <div class="score-label" id="score-top-label">Similarity Match</div>
                     <div class="score-status" id="score-status">Calculating...</div>
@@ -761,9 +750,14 @@
 
             // Score Card Adjustments
             document.getElementById('score-card').style.borderLeftColor = "#38bdf8";
+            
+            const circle = document.getElementById('radial-bar');
+            circle.style.strokeDashoffset = 0; // Fill circle completely
+            circle.style.stroke = "#38bdf8";
+            circle.style.filter = "drop-shadow(0 0 8px rgba(56, 189, 248, 0.5))";
+            
             document.getElementById('score-num').innerText = "OCR";
-            document.getElementById('score-num').style.borderColor = "#38bdf8";
-            document.getElementById('score-num').style.boxShadow = "0 0 20px rgba(56, 189, 248, 0.2)";
+            document.getElementById('score-num').style.color = "#ffffff";
             document.getElementById('score-status').innerText = "Text Scanned Successfully!";
             document.getElementById('score-status').style.color = "#38bdf8";
             
@@ -837,11 +831,17 @@
                 color = "#4ade80"; // Green
             }
 
-            // Render score
+            // Render score with SVG gauge animation
+            const circle = document.getElementById('radial-bar');
+            const circumference = 326.7;
+            const offset = circumference - (circumference * scoreInt / 100);
+            circle.style.strokeDashoffset = offset;
+            circle.style.stroke = color;
+            circle.style.filter = `drop-shadow(0 0 8px ${color}80)`;
+
             document.getElementById('score-card').style.borderLeftColor = color;
             document.getElementById('score-num').innerText = `${scoreInt}%`;
-            document.getElementById('score-num').style.borderColor = color;
-            document.getElementById('score-num').style.boxShadow = `0 0 20px ${color}40`;
+            document.getElementById('score-num').style.color = "#ffffff";
             document.getElementById('score-status').innerText = status;
             document.getElementById('score-status').style.color = color;
             document.getElementById('score-desc').innerText = desc;
