@@ -49,6 +49,56 @@
             font-size: 15px;
             font-weight: 400;
         }
+        .demo-panel {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.3);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .demo-panel span {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .demo-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            border-radius: 6px;
+            width: auto;
+            box-shadow: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .demo-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            transform: translateY(-1px);
+        }
+        .demo-btn.green {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        .demo-btn.green:hover {
+            background: rgba(74, 222, 128, 0.2);
+        }
+        .demo-btn.red {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+            margin-left: auto;
+        }
+        .demo-btn.red:hover {
+            background: rgba(248, 113, 113, 0.2);
+        }
         .upload-grid {
             display: flex;
             gap: 25px;
@@ -126,7 +176,7 @@
             font-weight: 500;
             user-select: none;
         }
-        button {
+        .action-btn {
             display: block;
             width: 100%;
             padding: 16px;
@@ -140,7 +190,7 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
         }
-        button:hover {
+        .action-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
         }
@@ -149,6 +199,11 @@
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             padding-top: 35px;
             display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .score-container {
             display: flex;
@@ -175,6 +230,11 @@
             border: 4px solid #38bdf8;
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
             flex-shrink: 0;
+            animation: pulseScale 1s ease-out;
+        }
+        @keyframes pulseScale {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
         .score-details {
             flex: 1;
@@ -218,11 +278,29 @@
             flex: 1;
             min-width: 320px;
         }
-        .diff-col strong {
-            display: block;
+        .diff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
+        }
+        .diff-header strong {
             color: #e2e8f0;
             font-size: 15px;
+        }
+        .copy-btn {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #ffffff;
         }
         .diff-box {
             height: 300px;
@@ -255,7 +333,7 @@
             font-weight: 500;
         }
         
-        /* Loading Overlay Style */
+        /* Loader Overlay Style */
         #loader-overlay {
             display: none; 
             position: fixed; 
@@ -312,6 +390,14 @@
         <h1>📄 AI Document OCR Scanner & Similarity Detector</h1>
         <div class="subtitle">100% browser-based text extraction and similarity comparison</div>
         
+        <!-- Interactive Demo Panel -->
+        <div class="demo-panel">
+            <span>⚡ Interactive Sandbox Demos:</span>
+            <button class="demo-btn" onclick="loadSample(1)">Similar Notes (PBL Test)</button>
+            <button class="demo-btn green" onclick="loadSample(2)">Unique Notes (Test)</button>
+            <button class="demo-btn red" onclick="clearAll()">Reset Screen</button>
+        </div>
+
         <div class="upload-grid">
             <div class="upload-box">
                 <h3>Document A (Photo / File / Text)</h3>
@@ -331,7 +417,7 @@
             <label for="ignore_quotes">💬 Ignore quoted text (e.g. "citations") in similarity calculation</label>
         </div>
         
-        <button id="scan-btn" onclick="startScanner()">🔍 Scan & Compare Documents</button>
+        <button id="scan-btn" class="action-btn" onclick="startScanner()">🔍 Scan & Compare Documents</button>
 
         <!-- Error box -->
         <div id="error-box" style="display: none; color: #f87171; margin-top: 20px; font-weight: bold; text-align: center; background: rgba(248, 113, 113, 0.15); padding: 12px; border-radius: 8px; border: 1px solid rgba(248, 113, 113, 0.2);"></div>
@@ -359,16 +445,22 @@
             </div>
             
             <div class="diff-grid">
-                <div class="diff-col">
-                    <strong id="label-docA">Document A Preview</strong>
+                <div class="diff-col" id="colA">
+                    <div class="diff-header">
+                        <strong id="label-docA">Document A Preview</strong>
+                        <button class="copy-btn" onclick="copyToClipboard('diff-contentA')">📋 Copy</button>
+                    </div>
                     <div id="img-previewA" style="margin-top: 8px; margin-bottom: 12px; display:none;">
                         <span style="font-size: 13px; color: #94a3b8; font-weight: bold; display: block; margin-bottom: 5px;">📷 Uploaded Source Photo:</span>
                         <img id="img-srcA" style="max-height: 160px; max-width: 100%; border-radius: 8px; border: 1px solid #334155; display: block; object-fit: contain;">
                     </div>
                     <div class="diff-box" id="diff-contentA"></div>
                 </div>
-                <div class="diff-col">
-                    <strong id="label-docB">Document B Preview</strong>
+                <div class="diff-col" id="colB">
+                    <div class="diff-header">
+                        <strong id="label-docB">Document B Preview</strong>
+                        <button class="copy-btn" onclick="copyToClipboard('diff-contentB')">📋 Copy</button>
+                    </div>
                     <div id="img-previewB" style="margin-top: 8px; margin-bottom: 12px; display:none;">
                         <span style="font-size: 13px; color: #94a3b8; font-weight: bold; display: block; margin-bottom: 5px;">📷 Uploaded Source Photo:</span>
                         <img id="img-srcB" style="max-height: 160px; max-width: 100%; border-radius: 8px; border: 1px solid #334155; display: block; object-fit: contain;">
@@ -404,6 +496,42 @@
             } else {
                 document.getElementById(containerId).style.display = 'none';
             }
+        }
+
+        // Demo Loader Functionality
+        function loadSample(type) {
+            clearAll();
+            const text1 = document.getElementById('text1');
+            const text2 = document.getElementById('text2');
+            
+            if (type === 1) {
+                text1.value = "Unit :- 3\\n\\n* functions:-\\ninjective: f(a) = f(b) → a = b\\n\\nsurjective: for every y ∈ Y, there exists x such that f(x) = y\\n\\nBijective: Both injective & surjective\\n\\ncomposition: (gof)(x) = g(f(x))\\n\\nSubgroups & cyclic groups\\n\\nLagrange's Theorem:-\\no(H) divides o(G), where H is a subgroup of finite group G.";
+                text2.value = "Unit 3 Group Theory & Mappings\\n\\nFunctions Definitions:\\nInjective mapping: if f(a) is equal to f(b), then a must equal b.\\nSurjective mapping: For every output y in Y, there is an input x such that f(x)=y.\\nBijective mapping: When a mapping is both injective and surjective.\\n\\nLagrange's Theorem: The order of a subgroup H (denoted o(H)) always divides the order of the parent finite group G (o(G)).";
+            } else {
+                text1.value = "Python is an interpreted, high-level, general-purpose programming language. Created by Guido van Rossum and first released in 1991, Python's design philosophy emphasizes code readability.";
+                text2.value = "Lagrange's Theorem in group theory states that for any finite group G, the order of every subgroup H of G divides the order of G. It is named after Joseph-Louis Lagrange.";
+            }
+            
+            startScanner();
+        }
+
+        function clearAll() {
+            document.getElementById('file1').value = "";
+            document.getElementById('file2').value = "";
+            document.getElementById('text1').value = "";
+            document.getElementById('text2').value = "";
+            document.getElementById('img-previewA').style.display = 'none';
+            document.getElementById('img-previewB').style.display = 'none';
+            document.getElementById('results-area').style.display = 'none';
+            document.getElementById('error-box').style.display = 'none';
+        }
+
+        // Clipboard Helper
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("📋 Text copied to clipboard successfully!");
+            });
         }
 
         // Main parser routing
@@ -650,13 +778,13 @@
             if (target === 'A') {
                 document.getElementById('label-docA').innerText = "Document A Source";
                 document.getElementById('diff-contentA').innerText = text;
-                document.getElementById('label-docB').parentNode.style.display = 'none'; // hide doc B column
-                document.getElementById('label-docA').parentNode.style.display = 'block'; // show doc A column
+                document.getElementById('colB').style.display = 'none'; // hide doc B column
+                document.getElementById('colA').style.display = 'block'; // show doc A column
             } else {
                 document.getElementById('label-docB').innerText = "Document B Source";
                 document.getElementById('diff-contentB').innerText = text;
-                document.getElementById('label-docA').parentNode.style.display = 'none'; // hide doc A column
-                document.getElementById('label-docB').parentNode.style.display = 'block'; // show doc B column
+                document.getElementById('colA').style.display = 'none'; // hide doc A column
+                document.getElementById('colB').style.display = 'block'; // show doc B column
             }
         }
 
@@ -666,8 +794,8 @@
             document.getElementById('preview-legend').style.display = "block";
             
             // Show both columns
-            document.getElementById('label-docA').parentNode.style.display = 'block';
-            document.getElementById('label-docB').parentNode.style.display = 'block';
+            document.getElementById('colA').style.display = 'block';
+            document.getElementById('colB').style.display = 'block';
             document.getElementById('label-docA').innerText = "Document A Preview";
             document.getElementById('label-docB').innerText = "Document B Preview";
 
