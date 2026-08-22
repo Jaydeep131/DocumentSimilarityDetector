@@ -225,69 +225,84 @@ card.fill.fore_color.rgb = SLATE_CARD
 card.line.color.rgb = RGBColor(71, 85, 105)
 card.line.width = Pt(1.5)
 
-# Place text elements inside the card matching alignment and layout of the screenshot
-# Name (Left)
-name_box = slide.shapes.add_textbox(Inches(1.2), Inches(2.9), Inches(5.0), Inches(0.6))
-tf_name = name_box.text_frame
-p_name = tf_name.paragraphs[0]
-r_name_k = p_name.add_run()
-r_name_k.text = "NAME: "
-r_name_k.font.bold = True
-r_name_k.font.color.rgb = CYAN
-r_name_v = p_name.add_run()
-r_name_v.text = ""
-r_name_v.font.color.rgb = WHITE
-for r in [r_name_k, r_name_v]:
-    r.font.name = 'Segoe UI'
-    r.font.size = Pt(18)
+# Student 1 (Left Column)
+s1_box = slide.shapes.add_textbox(Inches(1.2), Inches(2.8), Inches(5.0), Inches(1.1))
+tf_s1 = s1_box.text_frame
+tf_s1.word_wrap = True
+p_s1_n = tf_s1.paragraphs[0]
+r1_n_k = p_s1_n.add_run()
+r1_n_k.text = "NAME 1: "
+r1_n_k.font.bold = True
+r1_n_k.font.color.rgb = CYAN
+r1_n_v = p_s1_n.add_run()
+r1_n_v.text = "Nimavat Jaydeep M."
+r1_n_v.font.color.rgb = WHITE
 
-# Branch (Right)
-branch_box = slide.shapes.add_textbox(Inches(6.8), Inches(2.9), Inches(5.0), Inches(0.6))
-tf_branch = branch_box.text_frame
-p_branch = tf_branch.paragraphs[0]
-r_branch_k = p_branch.add_run()
-r_branch_k.text = "BRANCH: "
-r_branch_k.font.bold = True
-r_branch_k.font.color.rgb = CYAN
-r_branch_v = p_branch.add_run()
-r_branch_v.text = "Computer Engineering"
-r_branch_v.font.color.rgb = WHITE
-for r in [r_branch_k, r_branch_v]:
-    r.font.name = 'Segoe UI'
-    r.font.size = Pt(18)
+p_s1_e = tf_s1.add_paragraph()
+p_s1_e.space_before = Pt(4)
+r1_e_k = p_s1_e.add_run()
+r1_e_k.text = "ENROLLMENT 1: "
+r1_e_k.font.bold = True
+r1_e_k.font.color.rgb = CYAN
+r1_e_v = p_s1_e.add_run()
+r1_e_v.text = "250043107032"
+r1_e_v.font.color.rgb = WHITE
 
-# Enrollment (Left)
-en_box = slide.shapes.add_textbox(Inches(1.2), Inches(3.8), Inches(5.0), Inches(0.6))
-tf_en = en_box.text_frame
-p_en = tf_en.paragraphs[0]
-r_en_k = p_en.add_run()
-r_en_k.text = "ENROLLMENT: "
-r_en_k.font.bold = True
-r_en_k.font.color.rgb = CYAN
-r_en_v = p_en.add_run()
-r_en_v.text = ""
-r_en_v.font.color.rgb = WHITE
-for r in [r_en_k, r_en_v]:
-    r.font.name = 'Segoe UI'
-    r.font.size = Pt(18)
+# Student 2 (Right Column)
+s2_box = slide.shapes.add_textbox(Inches(6.8), Inches(2.8), Inches(5.0), Inches(1.1))
+tf_s2 = s2_box.text_frame
+tf_s2.word_wrap = True
+p_s2_n = tf_s2.paragraphs[0]
+r2_n_k = p_s2_n.add_run()
+r2_n_k.text = "NAME 2: "
+r2_n_k.font.bold = True
+r2_n_k.font.color.rgb = CYAN
+r2_n_v = p_s2_n.add_run()
+r2_n_v.text = "Upadhyay Hitarth S."
+r2_n_v.font.color.rgb = WHITE
 
-# Semester (Right)
-sem_box = slide.shapes.add_textbox(Inches(6.8), Inches(3.8), Inches(5.0), Inches(0.6))
-tf_sem = sem_box.text_frame
-p_sem = tf_sem.paragraphs[0]
-r_sem_k = p_sem.add_run()
+p_s2_e = tf_s2.add_paragraph()
+p_s2_e.space_before = Pt(4)
+r2_e_k = p_s2_e.add_run()
+r2_e_k.text = "ENROLLMENT 2: "
+r2_e_k.font.bold = True
+r2_e_k.font.color.rgb = CYAN
+r2_e_v = p_s2_e.add_run()
+r2_e_v.text = "250043107050"
+r2_e_v.font.color.rgb = WHITE
+
+# Format fonts for student runs
+for r in [r1_n_k, r1_n_v, r1_e_k, r1_e_v, r2_n_k, r2_n_v, r2_e_k, r2_e_v]:
+    r.font.name = 'Segoe UI'
+    r.font.size = Pt(17)
+
+# Class Details (Branch / Semester) - Centered
+class_box = slide.shapes.add_textbox(Inches(1.2), Inches(4.3), Inches(10.9), Inches(0.6))
+tf_class = class_box.text_frame
+p_class = tf_class.paragraphs[0]
+p_class.alignment = PP_ALIGN.CENTER
+r_br_k = p_class.add_run()
+r_br_k.text = "BRANCH: "
+r_br_k.font.bold = True
+r_br_k.font.color.rgb = CYAN
+r_br_v = p_class.add_run()
+r_br_v.text = "Computer Engineering     |     "
+r_br_v.font.color.rgb = WHITE
+
+r_sem_k = p_class.add_run()
 r_sem_k.text = "SEMESTER: "
 r_sem_k.font.bold = True
 r_sem_k.font.color.rgb = CYAN
-r_sem_v = p_sem.add_run()
+r_sem_v = p_class.add_run()
 r_sem_v.text = "5th"
 r_sem_v.font.color.rgb = WHITE
-for r in [r_sem_k, r_sem_v]:
+
+for r in [r_br_k, r_br_v, r_sem_k, r_sem_v]:
     r.font.name = 'Segoe UI'
-    r.font.size = Pt(18)
+    r.font.size = Pt(17)
 
 # College (Centered)
-coll_box = slide.shapes.add_textbox(Inches(1.2), Inches(5.0), Inches(10.9), Inches(0.6))
+coll_box = slide.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
 tf_coll = coll_box.text_frame
 p_coll = tf_coll.paragraphs[0]
 p_coll.alignment = PP_ALIGN.CENTER
@@ -300,7 +315,7 @@ r_coll_v.text = "B H Gardi College Of Engineering And Technology"
 r_coll_v.font.color.rgb = WHITE
 for r in [r_coll_k, r_coll_v]:
     r.font.name = 'Segoe UI'
-    r.font.size = Pt(18)
+    r.font.size = Pt(17)
 
 # --------------------------------------------------
 # SLIDE 2: INTRODUCTION
@@ -840,14 +855,31 @@ p_t.font.bold = True
 p_t.font.color.rgb = CYAN
 
 # --------------------------------------------------
-# SAVE PRESENTATION (With fallback for locked files)
+# SAVE PRESENTATION (With robust fallback loops for locked files)
 # --------------------------------------------------
-out_path = os.path.join(project_dir, "AI_Document_OCR_Scanner_Similarity_Detector_PBL.pptx")
+import time
+base_name = "AI_Document_OCR_Scanner_Similarity_Detector_PBL"
+out_path = os.path.join(project_dir, f"{base_name}.pptx")
+saved = False
+
 try:
     prs.save(out_path)
     print(f"Presentation saved successfully to {out_path}")
+    saved = True
 except PermissionError:
-    alt_path = os.path.join(project_dir, "AI_Document_OCR_Scanner_Similarity_Detector_PBL_v2.pptx")
-    prs.save(alt_path)
-    print("WARNING: Permission Denied! PowerPoint is likely open and locking the original file.")
-    print(f"Your updated presentation was saved as: {alt_path}")
+    pass
+
+if not saved:
+    alt_path = os.path.join(project_dir, f"{base_name}_v2.pptx")
+    try:
+        prs.save(alt_path)
+        print(f"WARNING: original file locked. Saved alternative version successfully to: {alt_path}")
+        saved = True
+    except PermissionError:
+        pass
+
+if not saved:
+    timestamp = int(time.time())
+    timestamp_path = os.path.join(project_dir, f"{base_name}_{timestamp}.pptx")
+    prs.save(timestamp_path)
+    print(f"WARNING: Both original and v2 files are locked! Saved with timestamp to: {timestamp_path}")
