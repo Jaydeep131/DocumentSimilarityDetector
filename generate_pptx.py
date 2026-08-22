@@ -90,6 +90,46 @@ def add_bullets(slide, left, top, width, height, bullets, size=18, color=SILVER)
             p.level = 1
             p.font.size = Pt(size - 2)
 
+def colorize_code_line(p, line, font_size):
+    import re
+    p.space_after = Pt(2)
+    trimmed = line.strip()
+    # Style comments completely in gray
+    if trimmed.startswith("//") or trimmed.startswith("#"):
+        run = p.add_run()
+        run.text = line
+        run.font.name = 'Consolas'
+        run.font.size = Pt(font_size)
+        run.font.color.rgb = RGBColor(100, 116, 139)  # Slate Gray
+        return
+
+    # Regex to split line into strings, comments, numbers, keywords, and syntax tokens
+    token_pattern = re.compile(r'(\".*?\"|\'.*?\'|\/\/.*|[\w]+|[^\w\s\x00-\x1f]+|\s+)')
+    tokens = token_pattern.findall(line)
+    
+    keywords = {'async', 'function', 'try', 'catch', 'const', 'let', 'if', 'else', 'return', 'new', 'await', 'resolve', 'reject', 'then'}
+    
+    for token in tokens:
+        run = p.add_run()
+        run.text = token
+        run.font.name = 'Consolas'
+        run.font.size = Pt(font_size)
+        
+        # Color coding logic
+        if token.startswith('"') or token.startswith("'"):
+            run.font.color.rgb = RGBColor(253, 186, 116)  # Warm Orange for Strings
+        elif token in keywords:
+            run.font.color.rgb = RGBColor(244, 114, 182)  # Pink for Keywords
+            run.font.bold = True
+        elif token.startswith("//") or token.startswith("#"):
+            run.font.color.rgb = RGBColor(100, 116, 139)  # Slate Gray for Comments
+        elif token.isdigit():
+            run.font.color.rgb = RGBColor(129, 140, 248)  # Indigo for Numbers
+        elif token in {'document', 'window', 'Tesseract', 'pdfjsLib', 'mammoth', 'circle', 'prs'}:
+            run.font.color.rgb = RGBColor(56, 189, 248)   # Cyan for built-in APIs
+        else:
+            run.font.color.rgb = RGBColor(241, 245, 249)  # Off-White for identifiers and punctuation
+
 def add_code_block(slide, left, top, width, height, code_lines, font_size=11):
     # Draw a card background
     shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, top, width, height)
@@ -98,7 +138,7 @@ def add_code_block(slide, left, top, width, height, code_lines, font_size=11):
     shape.line.color.rgb = RGBColor(71, 85, 105)
     shape.line.width = Pt(1)
     
-    # Add text
+    # Add text and apply syntax coloring
     tf = shape.text_frame
     tf.word_wrap = True
     tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = Inches(0.15)
@@ -107,11 +147,7 @@ def add_code_block(slide, left, top, width, height, code_lines, font_size=11):
             p = tf.paragraphs[0]
         else:
             p = tf.add_paragraph()
-        p.text = line
-        p.font.name = 'Consolas'
-        p.font.size = Pt(font_size)
-        p.font.color.rgb = RGBColor(148, 226, 255)
-        p.space_after = Pt(2)
+        colorize_code_line(p, line, font_size)
 
 def add_screenshot(slide, left, top, width, height, filename):
     img_path = os.path.join(assets_dir, filename)
