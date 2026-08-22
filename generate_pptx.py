@@ -46,13 +46,13 @@ prs = Presentation()
 prs.slide_width = Inches(13.33)
 prs.slide_height = Inches(7.5)
 
-# Colors
-DARK_BG = RGBColor(15, 23, 42)      # Deep Navy (#0f172a)
-CYAN = RGBColor(56, 189, 248)       # Neon Cyan (#38bdf8)
-WHITE = RGBColor(255, 255, 255)
-SILVER = RGBColor(148, 163, 184)    # Soft Gray (#94a3b8)
-SLATE_CARD = RGBColor(30, 41, 59)   # Slate Card (#1e293b)
-CODE_BG = RGBColor(10, 15, 29)      # Charcoal Code (#0a0f1d)
+# Colors (Light Theme for high readability of black-text logo)
+DARK_BG = RGBColor(241, 245, 249)      # Light Off-White/Gray (#f1f5f9)
+CYAN = RGBColor(79, 70, 229)           # Premium Indigo Accent (#4f46e5)
+WHITE = RGBColor(15, 23, 42)           # Dark Slate for high contrast text (#0f172a)
+SILVER = RGBColor(71, 85, 105)         # Soft Slate for body text (#475569)
+SLATE_CARD = RGBColor(255, 255, 255)   # White Card container (#ffffff)
+CODE_BG = RGBColor(10, 15, 29)         # Dark Charcoal Code editor background (#0a0f1d)
 
 def set_slide_background(slide, color=DARK_BG):
     background = slide.background
@@ -206,7 +206,7 @@ run1.text = "Subject: "
 run1.font.name = 'Segoe UI'
 run1.font.size = Pt(18)
 run1.font.bold = True
-run1.font.color.rgb = RGBColor(163, 230, 53)  # Lime Yellow
+run1.font.color.rgb = CYAN
 
 run2 = p_subj.add_run()
 run2.text = "Python for Data Science (BE05000231)"
@@ -297,16 +297,10 @@ for r in [r_br_k, r_br_v, r_sem_k, r_sem_v]:
     r.font.name = 'Segoe UI'
     r.font.size = Pt(17)
 
-# College Logo Container
-logo_bg = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.66), Inches(5.1), Inches(6.0), Inches(1.3))
-logo_bg.fill.solid()
-logo_bg.fill.fore_color.rgb = WHITE
-logo_bg.line.color.rgb = CYAN
-logo_bg.line.width = Pt(1.5)
-
+# College Logo (Placed directly on details card)
 logo_path = os.path.join(assets_dir, "college_logo.png")
 if os.path.exists(logo_path):
-    slide1.shapes.add_picture(logo_path, Inches(3.76), Inches(5.15), width=Inches(5.8), height=Inches(1.2))
+    slide1.shapes.add_picture(logo_path, Inches(3.76), Inches(5.1), width=Inches(5.8), height=Inches(1.2))
 else:
     # Text Fallback if file missing
     coll_box = slide1.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
@@ -319,7 +313,7 @@ else:
     r_coll_k.font.color.rgb = CYAN
     r_coll_v = p_coll.add_run()
     r_coll_v.text = "B H Gardi College Of Engineering And Technology"
-    r_coll_v.font.color.rgb = RGBColor(15, 23, 42) # dark text on white fallback container if drawn
+    r_coll_v.font.color.rgb = WHITE
     for r in [r_coll_k, r_coll_v]:
         r.font.name = 'Segoe UI'
         r.font.size = Pt(17)
