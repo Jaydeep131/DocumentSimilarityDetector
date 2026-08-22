@@ -17,17 +17,16 @@ os.makedirs(assets_dir, exist_ok=True)
 # Copy actual screenshots from gemini conversation directory if present
 brain_dir = r"C:\Users\DELL\.gemini\antigravity-ide\brain\1671c805-0e4b-4d42-bd94-7ac6082ead66"
 screenshot_mapping = {
-    "page_loaded_1786946437158.png": "ui_empty.png",
-    "sandbox_inputs_empty_1786946895164.png": "ui_sandbox.png",
-    "pairwise_results_1786946946520.png": "comparison_results.png",
-    "diff_highlights_1786946967241.png": "diff_highlights.png",
-    "ocr_comparison_results_1786956789476.png": "ocr_scan.png",
-    "latest_ui_scan_1787323692870.png": "latest_ui_scan.png",
-    ".user_uploaded/media_1786947808389.jpg": "scanned_notes.jpg"
+    "ui_empty.png": "latest_ui_empty_1787324231499.png",
+    "ui_sandbox.png": "latest_ui_results_1787324446876.png",
+    "latest_ui_scan.png": "latest_ui_results_1787324446876.png",
+    "diff_highlights.png": "latest_ui_diff_1787324684761.png",
+    "ocr_scan.png": "latest_ui_single_ocr_1787325431264.png",
+    "scanned_notes.jpg": ".user_uploaded/media_1786947808389.jpg"
 }
 
 copied_screenshots = {}
-for src_name, dest_name in screenshot_mapping.items():
+for dest_name, src_name in screenshot_mapping.items():
     src_path = os.path.join(brain_dir, src_name)
     if os.path.exists(src_path):
         dest_path = os.path.join(assets_dir, dest_name)
@@ -142,14 +141,14 @@ slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
 
 # Main Title
-title_box = slide.shapes.add_textbox(Inches(0.75), Inches(0.3), Inches(11.83), Inches(1.3))
+title_box = slide.shapes.add_textbox(Inches(0.75), Inches(0.2), Inches(11.83), Inches(1.4))
 tf = title_box.text_frame
 tf.word_wrap = True
 p = tf.paragraphs[0]
 p.alignment = PP_ALIGN.CENTER
-p.text = "AI Document OCR Scanner & Similarity Detector"
+p.text = "AI-Based Document Similarity & Duplicate Detection System Using NLP"
 p.font.name = 'Segoe UI'
-p.font.size = Pt(32)
+p.font.size = Pt(28)
 p.font.bold = True
 p.font.color.rgb = CYAN
 
