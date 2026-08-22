@@ -583,8 +583,10 @@ add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
 ])
 
 code_cosine = [
+    "// Vector math in calculateCosine()",
     "let dotProduct = 0;",
-    "let mag1 = 0, mag2 = 0;",
+    "let mag1 = 0;",
+    "let mag2 = 0;",
     "vocab.forEach(word => {",
     "    dotProduct += freq1[word] * freq2[word];",
     "    mag1 += freq1[word] * freq1[word];",
@@ -593,7 +595,7 @@ code_cosine = [
     "if (mag1 === 0 || mag2 === 0) return 0;",
     "return (dotProduct / (Math.sqrt(mag1) * Math.sqrt(mag2))) * 100;"
 ]
-add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_cosine, font_size=12)
+add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_cosine, font_size=11)
 
 # ==================================================
 # SLIDE 22: SIMILARITY DETECTION
@@ -612,16 +614,21 @@ add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
 ])
 
 code_jaccard = [
-    "const words1 = new Set(t1.split(/\\s+/));",
-    "const words2 = new Set(t2.split(/\\s+/));",
-    "const intersection = new Set(",
-    "    [...words1].filter(x => words2.has(x))",
-    ");",
-    "const union = new Set([...words1, ...words2]);",
-    "if (union.size === 0) return 0;",
-    "return (intersection.size / union.size) * 100;"
+    "function calculateJaccard(text1, text2) {",
+    "    const t1 = cleanText(text1);",
+    "    const t2 = cleanText(text2);",
+    "    if (!t1 || !t2) return 0;",
+    "    const words1 = new Set(t1.split(/\\s+/));",
+    "    const words2 = new Set(t2.split(/\\s+/));",
+    "    const intersection = new Set(",
+    "        [...words1].filter(x => words2.has(x))",
+    "    );",
+    "    const union = new Set([...words1, ...words2]);",
+    "    if (union.size === 0) return 0;",
+    "    return (intersection.size / union.size) * 100;",
+    "}"
 ]
-add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_jaccard, font_size=11)
+add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_jaccard, font_size=10.5)
 
 # ==================================================
 # SLIDE 23: DUPLICATE DETECTION LOGIC
@@ -683,15 +690,13 @@ add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
 ])
 
 code_gauge = [
-    "// Radial Gauge update logic in JS",
+    "// Render score with SVG gauge animation",
     "const circle = document.getElementById('radial-bar');",
     "const circumference = 326.7;",
-    "const offset = circumference - ",
-    "      (circumference * scoreInt / 100);",
+    "const offset = circumference - (circumference * scoreInt / 100);",
     "circle.style.strokeDashoffset = offset;",
     "circle.style.stroke = color;",
-    "circle.style.filter = ",
-    "      `drop-shadow(0 0 8px ${color}80)`;"
+    "circle.style.filter = `drop-shadow(0 0 8px ${color}80)`;"
 ]
 add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_gauge, font_size=12)
 
@@ -727,20 +732,24 @@ add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
 
 code_main = [
     "async function startScanner() {",
-    "  try {",
-    "    const t1 = await extractText('file1', 'text1', 'Doc A');",
-    "    const t2 = await extractText('file2', 'text2', 'Doc B');",
-    "    if (t1 && !t2) {",
-    "      renderSingleScannerResult('A', t1);",
-    "    } else {",
-    "      renderComparisonResult(t1, t2);",
+    "    const overlay = document.getElementById('loader-overlay');",
+    "    const errorBox = document.getElementById('error-box');",
+    "    errorBox.style.display = 'none';",
+    "    overlay.style.display = 'flex';",
+    "    try {",
+    "        const t1 = await extractText('file1', 'text1', 'Document A');",
+    "        const t2 = await extractText('file2', 'text2', 'Document B');",
+    "        if (t1.trim() && !t2.trim()) {",
+    "            renderSingleScannerResult('A', t1, file1);",
+    "        } else {",
+    "            renderComparisonResult(t1, t2);",
+    "        }",
+    "    } catch (err) {",
+    "        errorBox.innerText = err;",
     "    }",
-    "  } catch (err) {",
-    "    showError(err);",
-    "  }",
     "}"
 ]
-add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_main, font_size=11)
+add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_main, font_size=10)
 
 # ==================================================
 # SLIDE 29: TESTING & VALIDATION
