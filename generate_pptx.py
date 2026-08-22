@@ -1,6 +1,6 @@
 import os
 import shutil
-import base64
+import time
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -86,7 +86,7 @@ def add_bullets(slide, left, top, width, height, bullets, size=18, color=SILVER)
         p.font.color.rgb = color
         p.space_after = Pt(12)
         # Check if sub-bullet
-        if bullet.strip().startswith("-"):
+        if bullet.strip().startswith("-") or bullet.strip().startswith("•"):
             p.level = 1
             p.font.size = Pt(size - 2)
 
@@ -131,14 +131,12 @@ def colorize_code_line(p, line, font_size):
             run.font.color.rgb = RGBColor(241, 245, 249)  # Off-White for identifiers and punctuation
 
 def add_code_block(slide, left, top, width, height, code_lines, font_size=11):
-    # Draw a card background
     shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, top, width, height)
     shape.fill.solid()
     shape.fill.fore_color.rgb = CODE_BG
     shape.line.color.rgb = RGBColor(71, 85, 105)
     shape.line.width = Pt(1)
     
-    # Add text and apply syntax coloring
     tf = shape.text_frame
     tf.word_wrap = True
     tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = Inches(0.15)
@@ -155,7 +153,6 @@ def add_screenshot(slide, left, top, width, height, filename):
         slide.shapes.add_picture(img_path, left, top, width=width, height=height)
         print(f"Placed screenshot {filename} on slide.")
     else:
-        # Draw placeholder shape
         shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
         shape.fill.solid()
         shape.fill.fore_color.rgb = SLATE_CARD
@@ -170,14 +167,13 @@ def add_screenshot(slide, left, top, width, height, filename):
         p.font.size = Pt(14)
         p.font.color.rgb = SILVER
 
-# --------------------------------------------------
+# ==================================================
 # SLIDE 1: TITLE SLIDE
-# --------------------------------------------------
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-set_slide_background(slide)
+# ==================================================
+slide1 = prs.slides.add_slide(prs.slide_layouts[6])
+set_slide_background(slide1)
 
-# Main Title
-title_box = slide.shapes.add_textbox(Inches(0.75), Inches(0.2), Inches(11.83), Inches(1.4))
+title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.2), Inches(11.83), Inches(1.4))
 tf = title_box.text_frame
 tf.word_wrap = True
 p = tf.paragraphs[0]
@@ -188,17 +184,16 @@ p.font.size = Pt(28)
 p.font.bold = True
 p.font.color.rgb = CYAN
 
-# Subtitle
 p_sub = tf.add_paragraph()
 p_sub.alignment = PP_ALIGN.CENTER
-p_sub.text = "PBL Task 2"
+p_sub.text = "AI-Based Document Processing Using OCR, NLP and Similarity Analysis\nPBL Task 2"
 p_sub.font.name = 'Segoe UI'
 p_sub.font.size = Pt(16)
 p_sub.font.color.rgb = SILVER
 p_sub.space_before = Pt(4)
 
-# Subject Text Block (Lime-Yellow and White styling matching the screenshot)
-subj_box = slide.shapes.add_textbox(Inches(0.75), Inches(1.6), Inches(11.83), Inches(0.8))
+# Subject Text Block
+subj_box = slide1.shapes.add_textbox(Inches(0.75), Inches(1.8), Inches(11.83), Inches(0.8))
 tf_subj = subj_box.text_frame
 tf_subj.word_wrap = True
 p_subj = tf_subj.paragraphs[0]
@@ -207,26 +202,26 @@ p_subj.alignment = PP_ALIGN.CENTER
 run1 = p_subj.add_run()
 run1.text = "Subject: "
 run1.font.name = 'Segoe UI'
-run1.font.size = Pt(20)
+run1.font.size = Pt(18)
 run1.font.bold = True
 run1.font.color.rgb = RGBColor(163, 230, 53)  # Lime Yellow
 
 run2 = p_subj.add_run()
 run2.text = "Python for Data Science (BE05000231)"
 run2.font.name = 'Segoe UI'
-run2.font.size = Pt(20)
+run2.font.size = Pt(18)
 run2.font.bold = True
 run2.font.color.rgb = WHITE
 
 # Card block for student details
-card = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(2.5), Inches(11.83), Inches(4.3))
+card = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(2.7), Inches(11.83), Inches(4.1))
 card.fill.solid()
 card.fill.fore_color.rgb = SLATE_CARD
 card.line.color.rgb = RGBColor(71, 85, 105)
 card.line.width = Pt(1.5)
 
-# Student 1 (Left Column)
-s1_box = slide.shapes.add_textbox(Inches(1.2), Inches(2.8), Inches(5.0), Inches(1.1))
+# Student 1
+s1_box = slide1.shapes.add_textbox(Inches(1.2), Inches(2.9), Inches(5.0), Inches(1.1))
 tf_s1 = s1_box.text_frame
 tf_s1.word_wrap = True
 p_s1_n = tf_s1.paragraphs[0]
@@ -248,8 +243,8 @@ r1_e_v = p_s1_e.add_run()
 r1_e_v.text = "250043107032"
 r1_e_v.font.color.rgb = WHITE
 
-# Student 2 (Right Column)
-s2_box = slide.shapes.add_textbox(Inches(6.8), Inches(2.8), Inches(5.0), Inches(1.1))
+# Student 2
+s2_box = slide1.shapes.add_textbox(Inches(6.8), Inches(2.9), Inches(5.0), Inches(1.1))
 tf_s2 = s2_box.text_frame
 tf_s2.word_wrap = True
 p_s2_n = tf_s2.paragraphs[0]
@@ -271,13 +266,12 @@ r2_e_v = p_s2_e.add_run()
 r2_e_v.text = "250043107050"
 r2_e_v.font.color.rgb = WHITE
 
-# Format fonts for student runs
 for r in [r1_n_k, r1_n_v, r1_e_k, r1_e_v, r2_n_k, r2_n_v, r2_e_k, r2_e_v]:
     r.font.name = 'Segoe UI'
     r.font.size = Pt(17)
 
-# Class Details (Branch / Semester) - Centered
-class_box = slide.shapes.add_textbox(Inches(1.2), Inches(4.3), Inches(10.9), Inches(0.6))
+# Class Details
+class_box = slide1.shapes.add_textbox(Inches(1.2), Inches(4.3), Inches(10.9), Inches(0.6))
 tf_class = class_box.text_frame
 p_class = tf_class.paragraphs[0]
 p_class.alignment = PP_ALIGN.CENTER
@@ -301,8 +295,8 @@ for r in [r_br_k, r_br_v, r_sem_k, r_sem_v]:
     r.font.name = 'Segoe UI'
     r.font.size = Pt(17)
 
-# College (Centered)
-coll_box = slide.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
+# College
+coll_box = slide1.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
 tf_coll = coll_box.text_frame
 p_coll = tf_coll.paragraphs[0]
 p_coll.alignment = PP_ALIGN.CENTER
@@ -317,324 +311,275 @@ for r in [r_coll_k, r_coll_v]:
     r.font.name = 'Segoe UI'
     r.font.size = Pt(17)
 
-# --------------------------------------------------
+# ==================================================
 # SLIDE 2: INTRODUCTION
-# --------------------------------------------------
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
 add_title(slide, "1. Introduction")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Document Plagiarism is a critical issue in digital classrooms and professional domains.",
-    "• Traditional checkers cannot inspect scanned books, images, or offline note photos.",
-    "• Data Privacy is often violated by third-party checkers uploading files to external servers.",
-    "• Our project builds a 100% serverless, private tool to scan documents and check similarity directly in the browser."
+    "• Document Similarity: The process of measuring the semantic or syntactic alignment between two text bodies.",
+    "• Duplicate Detection: Identifying exact or highly rewritten copies of files to protect academic integrity.",
+    "• Natural Language Processing (NLP): Used to clean, tokenize, and map raw text characters into mathematical arrays.",
+    "• Automated Comparison: Bypasses slow manual grading reviews by running comparison algorithms in real-time.",
+    "• Scope of Present Work: A client-side, browser-native pipeline capable of parsing PDF, DOCX, and scanned note photos."
 ])
 
-# --------------------------------------------------
+# ==================================================
 # SLIDE 3: PROJECT OVERVIEW
-# --------------------------------------------------
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
 add_title(slide, "2. Project Overview")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
-    "• 100% Browser-Based Web Application.",
-    "• Integrates local OCR, PDF, and DOCX parsers.",
-    "• Runs NLP Text Cleaning and Tokenization on-device.",
-    "• Computes similarity match indexes dynamically.",
-    "• Renders a clean glassmorphic presentation dashboard."
+    "• 100% Client-Side Web Application: Executed entirely in the browser using HTML5, CSS3, and JavaScript.",
+    "• Document Ingestion: Extracts text dynamically from pasted strings or uploaded files (.txt, .pdf, .docx).",
+    "• Offline OCR Scanner: Extracts handwritten or printed characters from note photos (.png, .jpg, .jpeg).",
+    "• Statistical NLP Math: Matches vocabulary sets using Cosine Vector models and Jaccard Set indices.",
+    "• Immediate Feedback: Shows circular gauges, metrics, and Turnitin-style highlighted match segments."
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "ui_empty.png")
 
-# --------------------------------------------------
+# ==================================================
 # SLIDE 4: PROBLEM STATEMENT
-# --------------------------------------------------
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
 add_title(slide, "3. Problem Statement")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Inability to Parse Scanned Books/Photos: Students often upload photos of pages which standard text matchers ignore.",
-    "• Server Dependencies & Network Timeouts: Local Python servers run slowly and fail behind university proxies (WinError 10060).",
-    "• Security & Document Exposure: Commercial checkers keep copies of submitted assignments, creating data leak risks.",
-    "• Complex UI: Traditional dashboards are cluttered and slow to load on mobile devices."
+    "• Inability to Scan Images: Standard plagiarism detectors completely fail to inspect book photos or handwritten notebook scans.",
+    "• Network Dependency Constraints: Python server setups are blocked by university firewall sockets, causing terminal timeout errors.",
+    "• Heavy Server Costs: Spawning GPU-dependent server-side OCR modules is expensive and complex to maintain.",
+    "• Data Leaks and Exposure: Uploading student work to proprietary databases exposes sensitive student files."
 ])
 
-# --------------------------------------------------
-# SLIDE 5: OBJECTIVES
-# --------------------------------------------------
+# ==================================================
+# SLIDE 5: PROJECT OBJECTIVES
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "4. Objectives")
+add_title(slide, "4. Project Objectives")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Serverless Architecture: Build a completely client-side tool requiring zero backend execution.",
-    "• Universal Scanned Ingestion: Enable reading text from images (Tesseract.js) and PDFs (PDF.js).",
-    "• Fast Plagiarism Checks: Run standard similarity calculations (Cosine & Jaccard index) in milliseconds.",
-    "• Safe & Private Checking: Ensure that files are parsed in the browser and never uploaded to any remote host."
+    "• Serverless Architecture: Deliver a high-performance scanner running completely on local client browser threads.",
+    "• Client-Side OCR Scanning: Perform text extractions from student note photos locally using Web Workers.",
+    "• Combined Mathematical Models: Implement TF-IDF Cosine Similarity and Jaccard Indexing to catch rewritten copies.",
+    "• Turnitin-style Diff: Render real-time visual highlight tags showing exact matching vocabularies.",
+    "• Maximum Data Privacy: Prevent documents from ever leaving the student's browser."
 ])
 
-# --------------------------------------------------
+# ==================================================
 # SLIDE 6: PROJECT MOTIVATION
-# --------------------------------------------------
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
 add_title(slide, "5. Project Motivation")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Eliminating Installation Hurdles: Moving away from heavy local Python setups that require installing PyTorch/OpenCV.",
-    "• Internet-Independent Scans: Caching language models inside browser storage for offline execution.",
-    "• Cost-Free Deployment: Building static files (HTML/CSS/JS) that host for free on Netlify.",
-    "• Responsive Presentability: Creating a tool that can be used on any smartphone in a live presentation room."
+    "• Zero Maintenance Overhead: Developing static pages (Netlify-ready) that run forever without paid database backends.",
+    "• Bypassing Proxy Blocks: Eliminating Python terminal connection errors (`WinError 10060`) by using browser WebAssembly.",
+    "• Time-Saving Automation: Evaluating handwritten pages or mathematical outlines in seconds.",
+    "• Mobile Accessibility: Creating responsive layouts that fit on tablets and phones in a presentation room."
 ])
 
-# --------------------------------------------------
-# SLIDE 7: EXISTING APPROACH
-# --------------------------------------------------
+# ==================================================
+# SLIDE 7: EXISTING SYSTEM / EXISTING APPROACH
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "6. Existing Approach")
+add_title(slide, "6. Existing System / Existing Approach")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Heavy Server-Side Frameworks: Standard custom solutions require Python backend processes.",
-    "• Network Blockage Constraints: Downloading neural net models (EasyOCR) causes `WinError 10060` connection timeouts in terminals.",
-    "• Proprietary Checking Subscriptions: Teachers and students depend on paid accounts (Turnitin, Copyleaks).",
-    "• Heavy Resource Footprint: Spawning sub-processes slows down browsers and eats RAM."
+    "• Python Flask/Streamlit Backends: Spawns heavy local servers running PyTorch or OpenCV frameworks.",
+    "• Paid Subscriptions: Academic institutions depend on proprietary APIs (Copyleaks, Turnitin) with strict rate limits.",
+    "• Static String Checks: Basic checkers match exact character lists, ignoring vocabulary distributions or synonym rewriting.",
+    "• Manual Student Uploads: Teachers have to manually copy and paste image text before running checks."
 ])
 
-# --------------------------------------------------
-# SLIDE 8: PROPOSED SYSTEM
-# --------------------------------------------------
+# ==================================================
+# SLIDE 8: LIMITATIONS OF EXISTING SYSTEM
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "7. Proposed System")
+add_title(slide, "7. Limitations of Existing System")
+add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
+    "• Network Timout Errors: Server socket connections crash frequently during model weight downloads.",
+    "• Latency: Transmitting high-resolution student images to external APIs causes long processing queues.",
+    "• Privacy Non-Compliance: Storing documents in shared clouds violates university student privacy policies.",
+    "• Lack of Offline Scans: stream processes fail completely if the server loses internet connection."
+])
+
+# ==================================================
+# SLIDE 9: PROPOSED SYSTEM
+# ==================================================
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+set_slide_background(slide)
+add_title(slide, "8. Proposed System")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
-    "• Client-Side JavaScript Application: Runs entirely inside the local browser window.",
-    "• CDN Integration: Loads stable parsers (Tesseract.js, PDF.js, Mammoth.js) directly.",
-    "• On-Device OCR Execution: Uses Web Workers to scan photos locally.",
-    "• Interactive Dashboard: Instant comparisons and sandbox files."
+    "• 100% Client-Side Engine: Browser WebAssembly compiles local parser scripts.",
+    "• Multi-Format File Uploads: PDF.js and Mammoth.js process files locally.",
+    "• IndexedDB Model Caching: Stores Tesseract OCR neural weights inside browser cache.",
+    "• JavaScript NLP execution: tokenizes, cleans, and runs vector distance calculations on-device."
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "ui_sandbox.png")
 
-# --------------------------------------------------
-# SLIDE 9: KEY FEATURES
-# --------------------------------------------------
+# ==================================================
+# SLIDE 10: KEY FEATURES
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "8. Key Features")
+add_title(slide, "9. Key Features")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Browser OCR (Tesseract.js): Scans text from JPG, PNG, and JPEG notes directly.",
-    "• Binary File Parsers: Reads PDF (PDF.js) and DOCX (Mammoth.js) without backend parsers.",
-    "• SVG Circular progress gauge: Animates dynamically based on matching score.",
-    "• Turnitin-Style Diff highlighting: Colors matching segments in orange.",
-    "• Citation Filter: Toggles ignoring quotes ('...') from the comparison."
+    "• WebAssembly Tesseract OCR: Scans JPG/PNG text directly in the browser.",
+    "• PDF & Word Extraction: Parses files page-by-page client-side using JavaScript array buffers.",
+    "• Animated SVG Circular Gauge: Dynamic progress dial tracking the similarity score.",
+    "• Sandbox Demo presets: Pre-loaded group theory notes to test features in one click.",
+    "• Citation Filter checkbox: Ignores text inside double/single quotes during scoring."
 ])
 
-# --------------------------------------------------
-# SLIDE 10: TECHNOLOGY STACK
-# --------------------------------------------------
+# ==================================================
+# SLIDE 11: PROJECT SCOPE
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "9. Technology Stack")
+add_title(slide, "10. Project Scope")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Core Language: JavaScript (ES6+), HTML5, CSS3 Variables.",
-    "• Optical Character Recognition (OCR): Tesseract.js (v5, compiled in WebAssembly).",
-    "• PDF Parser: Mozilla's PDF.js (v3.11.174).",
-    "• Word Parser: Mammoth.js (v1.6.0).",
-    "• Hosting: Netlify Continuous Deployment (Git-Synced)."
+    "• Academic Grading Portals: Fast assignment checks directly within learning management portals.",
+    "• Offline Verification: Scanning physical textbook sheets in offline university labs.",
+    "• Private Homework Submissions: Validates original student answers without exposing them online.",
+    "• Lightweight Plagiarism Review: Useful for grading committees to check duplicate reports on their phones."
 ])
 
-# --------------------------------------------------
-# SLIDE 11: SYSTEM ARCHITECTURE
-# --------------------------------------------------
+# ==================================================
+# SLIDE 12: TECHNOLOGY STACK
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "10. System Architecture")
+add_title(slide, "11. Technology Stack")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Input Layer: HTML drag-and-drop file inputs or raw copy-paste text areas.",
-    "• Native Extractor: FileReader API converts file bytes into array buffers.",
-    "• Parsing Engine: Tesseract, PDF.js, or Mammoth.js processes buffers into clean string arrays.",
-    "• Math Processor: JavaScript calculates Cosine vector distances and Jaccard intersections.",
-    "• Visual Output: Updates SVG dash-array and highlighted spans dynamically."
+    "• Core Technologies: HTML5 Semantic Layout, CSS3 Variables (theme layout), ES6 JavaScript.",
+    "• OCR Parser: Tesseract.js (v5, runs Web Workers on local browser threads).",
+    "• Adobe PDF Parser: PDF.js (v3.11.174, page-coordinate array parser).",
+    "• Word Document Parser: Mammoth.js (v1.6.0, docx-to-XML plain text converter).",
+    "• Hosting Platform: Netlify Continuous Deployment (connected via GitHub)."
 ])
 
-# --------------------------------------------------
-# SLIDE 12: SYSTEM WORKFLOW
-# --------------------------------------------------
+# ==================================================
+# SLIDE 13: SYSTEM ARCHITECTURE
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "11. System Workflow")
+add_title(slide, "12. System Architecture")
+add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
+    "• User Interface: Glassmorphic HTML5 dashboard handles inputs (files/text).",
+    "• Extraction Layer: FileReader API reads bytes locally. Tesseract, PDF.js, and Mammoth parse to strings.",
+    "• NLP Core: JavaScript tokenizes text, cleans punctuation, and normalizes cases.",
+    "• Comparison Core: JavaScript vectors compute Cosine and Jaccard similarity indices.",
+    "• Rendering: Updates orange highlighter spans and circular progress offsets dynamically."
+])
+
+# ==================================================
+# SLIDE 14: SYSTEM WORKFLOW
+# ==================================================
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+set_slide_background(slide)
+add_title(slide, "13. System Workflow")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
-    "• Start: User opens index.html in browser.",
-    "• Load: CDNs fetch parsers and initialize Tesseract workers.",
-    "• Input: User uploads document photos or pastes notes.",
-    "• Click: Form submission triggers the extraction loader overlay.",
-    "• Process: Client scans images, extracts text, runs comparison math.",
-    "• Output: Displays gauge percentage and side-by-side matches."
+    "• Select: User selects text files, PDF files, Word files, or image scans.",
+    "• Loading: Spawns progress spinner overlays on form submit.",
+    "• Extract: Browser libraries parse text content on workers.",
+    "• Calculate: Computes Cosine + Jaccard average match.",
+    "• Render: Updates UI gauge and diff spans instantly."
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "ocr_scan.png")
 
-# --------------------------------------------------
-# SLIDE 13: INPUT PROCESSING
-# --------------------------------------------------
+# ==================================================
+# SLIDE 15: INPUT DATA / DOCUMENT INPUT
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "12. Input Processing")
+add_title(slide, "14. Input Data / Document Input")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• FileReader API: Asynchronously reads local file bytes in the browser.",
-    "• Array Buffer Extraction: Reads DOCX and PDF as raw byte arrays for Mammoth and PDF.js.",
-    "• Data URL Extraction: Reads JPG and PNG files as base64 URLs for image display previews.",
-    "• State Sync: Automatically fills text areas with the extracted text for editing."
+    "• Uploading File Formats: Supports .txt, .pdf, .docx, and images (.png, .jpg, .jpeg).",
+    "• Base64 Image Preview: Shows thumbnail previews of uploaded images directly in the columns.",
+    "• Text Box Copy-Pasting: Users can type directly into the text areas to run instant comparisons.",
+    "• Sandbox Note Presets: Clickable buttons to load university math notes for quick validation."
 ])
 
-# --------------------------------------------------
-# SLIDE 14: DOCUMENT PROCESSING
-# --------------------------------------------------
+# ==================================================
+# SLIDE 16: DOCUMENT PROCESSING
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "13. Document Processing")
+add_title(slide, "15. Document Processing")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• PDF.js Processing:",
-    "  - `pdfjsLib.getDocument()` parses PDF arrayBuffer into document objects.",
-    "  - Iterates page-by-page to fetch text elements via `page.getTextContent()`.",
-    "• Mammoth.js Processing:",
-    "  - `mammoth.extractRawText()` converts Word DOCX XML blocks into clean paragraphs.",
-    "  - Strips layout formatting metadata to retrieve pure string arrays."
+    "• FileReader API Conversion: Reads files locally using Javascript array buffers.",
+    "• PDF.js Document parsing: `pdfjsLib.getDocument()` loads PDF arrays to memory.",
+    "• Mammoth.js Paragraph extraction: Reads .docx file formats directly into clean text strings.",
+    "• Web Worker sandboxing: Parsing processes run in browser threads so the dashboard stays fast."
 ])
 
-# --------------------------------------------------
-# SLIDE 15: IMAGE PREPROCESSING
-# --------------------------------------------------
+# ==================================================
+# SLIDE 17: TEXT EXTRACTION / PREPROCESSING
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "14. Image Preprocessing")
+add_title(slide, "16. Text Preprocessing Pipeline")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Status: Not available in the current implementation.",
-    "• Rationale: In our browser-native client app, images are fed directly to Tesseract.js in their raw state.",
-    "• Tesseract.js handles thresholding and binarization internally within its compiled WebAssembly core.",
-    "• Future Scope: Can integrate canvas-based threshold filters to improve scanning accuracy on blurry pages."
+    "• Case Normalization: `.toLowerCase()` standardizes casing to prevent capitalization mismatches.",
+    "• Punctuation Removal: RegEx `.replace(/[^\w\s]/g, '')` strips symbols, commas, and periods.",
+    "• Space Trimming: `.trim()` removes leading and trailing spaces.",
+    "• Word Splitting: `.split(/\\s+/)` separates the cleaned strings into token arrays of clean words."
 ])
 
-# --------------------------------------------------
-# SLIDE 16: OCR TECHNOLOGY
-# --------------------------------------------------
+# ==================================================
+# SLIDE 18: NLP PROCESSING
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "15. OCR Technology")
+add_title(slide, "17. NLP Processing")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Tesseract.js WebAssembly Port: Compiles Google's neural network OCR to browser-executable binary.",
-    "• Web Worker Sandbox: Spawns offline worker threads, leaving the main UI thread lag-free.",
-    "• Local Language Cache: Downloads the English language training set once and caches it in IndexedDB.",
-    "• Real-time progress updates: Logs execution percentages dynamically to show scanning status."
+    "• Tokenization: Splits text strings into arrays of individual word token strings.",
+    "• Vocabulary Set indexing: Converts token arrays into unique JavaScript Set structures.",
+    "• Frequency mapping: Counts word occurrences to build frequency bags for vector matching.",
+    "• Citation Filtering: Regex replaces quoted sections with blank space before similarity checks."
 ])
 
-# --------------------------------------------------
-# SLIDE 17: OCR IMPLEMENTATION
-# --------------------------------------------------
+# ==================================================
+# SLIDE 19: TEXT REPRESENTATION
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "16. OCR Implementation")
-
-add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
-    "• The OCR extraction is called inside a Promise.",
-    "• Tesseract.recognize accepts the image file.",
-    "• A logger callback tracks progress.",
-    "• Displays percentage live in the loader overlay.",
-    "• Extracted text is returned to the parser route."
-])
-
-code_ocr = [
-    "Tesseract.recognize(",
-    "    file,",
-    "    'eng',",
-    "    {",
-    "        logger: m => {",
-    "            if (m.status === 'recognizing text') {",
-    "                const pct = Math.round(m.progress * 100);",
-    "                updateStatus(`📷 Scanning Image: ${pct}%`);",
-    "            }",
-    "        }",
-    "    }",
-    ").then(({ data: { text } }) => {",
-    "    resolve(text);",
-    "});"
-]
-add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_ocr, font_size=12)
-
-# --------------------------------------------------
-# SLIDE 18: OCR OUTPUT
-# --------------------------------------------------
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-set_slide_background(slide)
-add_title(slide, "17. OCR Output")
-add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• String Generation: Outputs a clean text string containing all recognized characters and symbols.",
-    "• Syncing fields: Extracted text is automatically entered into the text areas for verification.",
-    "• Visual preview: Displays a base64 preview of the original photographed note right above the results.",
-    "• Stats counter: Calculates total words and characters found in the scanned image."
-])
-
-# --------------------------------------------------
-# SLIDE 19: TEXT PREPROCESSING
-# --------------------------------------------------
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-set_slide_background(slide)
-add_title(slide, "18. Text Preprocessing")
-add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Lowercasing: `text.toLowerCase()` avoids matches failing due to capitalization differences.",
-    "• Punctuation Stripping: `.replace(/[^\w\s]/g, '')` strips periods, commas, and question marks.",
-    "• Spaces Trimming: `.trim()` removes trailing spaces.",
-    "• RegEx word boundary splits: `.split(/\s+/)` cleans double-spaces to generate a clean array of words."
-])
-
-# --------------------------------------------------
-# SLIDE 20: NLP PROCESSING
-# --------------------------------------------------
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-set_slide_background(slide)
-add_title(slide, "19. NLP Processing")
-add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Tokenization: Splits text strings into individual word token arrays.",
-    "• Vocabulary Sets: Javascript `Set` creates unique list vectors of words.",
-    "• Array transformations: Converts vocab lists into structured frequency arrays for math models.",
-    "• Clean Input: Normalization removes duplicate spaces, preparing the data for similarity models."
-])
-
-# --------------------------------------------------
-# SLIDE 21: FEATURE EXTRACTION
-# --------------------------------------------------
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-set_slide_background(slide)
-add_title(slide, "20. Feature Extraction")
+add_title(slide, "18. Text Representation")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
     "• Vocabulary Union Vector: Compares word sets from both documents to create a master list of all unique words.",
-    "• Word Count Maps: Creates key-value frequency objects for both Document A and Document B.",
-    "• Indexing coordinates: Maps the frequency values matching the master list order to represent both documents as vectors.",
-    "• Ready for similarity: High-performance representation built entirely dynamically in JavaScript."
+    "• Term Frequency (TF) Maps: Maps occurrences of each word coordinate relative to the master list.",
+    "• Multi-Dimensional Vectors: Represents both documents as coordinates, ready for distance calculation."
 ])
 
-# --------------------------------------------------
-# SLIDE 22: TF-IDF / ACTUAL FEATURE METHOD
-# --------------------------------------------------
+# ==================================================
+# SLIDE 20: TF-IDF IMPLEMENTATION
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "21. Term Frequency (TF) Vector Method")
+add_title(slide, "19. Term Frequency (TF) Vector Method")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
     "• Actual Method in Code: Dynamic Word Frequency Vectors.",
-    "• Step 1: Combine both documents' word arrays to create a master Vocabulary Union Set.",
-    "• Step 2: Initialize frequency map objects (frequency arrays) mapping each vocab word to 0.",
-    "• Step 3: Populate counts by iterating through both text arrays.",
-    "• Step 4: Map values to numerical arrays representing vectors, ready for Cosine Distance calculation."
+    "• Vocab Set: Combines both documents' word arrays into a master Vocab Set.",
+    "• Frequency Mapping: Loops vocab list to count term occurrences in each document.",
+    "• Vector Representation: Maps counts into coordinate arrays, ready for Cosine Distance calculations."
 ])
 
-# --------------------------------------------------
-# SLIDE 23: COSINE SIMILARITY / ACTUAL SIMILARITY METHOD
-# --------------------------------------------------
+# ==================================================
+# SLIDE 21: COSINE SIMILARITY
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "22. Cosine Similarity Vector Math")
+add_title(slide, "20. Cosine Similarity Vector Math")
 
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
-    "• Represents both texts as vectors.",
-    "• Calculates Dot Product by multiplying matching frequencies.",
-    "• Divides by the product of their Vector Magnitudes.",
-    "• Outputs similarity score on scale 0% to 100%.",
-    "• Keeps matching accurate regardless of text length differences."
+    "• Cosine Similarity measures the angle between document vectors:",
+    "  Cosine Similarity = (A · B) / (||A|| * ||B||)",
+    "• Dot Product: Multiplies matching coordinates between document maps.",
+    "• Magnitudes product: Normalizes vectors to keep calculations accurate.",
+    "• Length Independence: Ensures matching remains accurate even if document lengths differ."
 ])
 
 code_cosine = [
@@ -650,19 +595,19 @@ code_cosine = [
 ]
 add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_cosine, font_size=12)
 
-# --------------------------------------------------
-# SLIDE 24: SIMILARITY DETECTION (JACCARD)
-# --------------------------------------------------
+# ==================================================
+# SLIDE 22: SIMILARITY DETECTION
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "23. Similarity Detection (Jaccard Index)")
+add_title(slide, "21. Similarity Detection (Jaccard Index)")
 
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
-    "• Checks overall Vocabulary Set overlap.",
-    "• Converts cleaned word arrays into unique Sets.",
-    "• Intersection: Shared unique words.",
-    "• Union: Total unique words combined.",
-    "• Dividing Intersection by Union gives Jaccard percentage.",
+    "• Checks overall Vocabulary Set overlap:",
+    "  Jaccard Index = |A ∩ B| / |A ∪ B|",
+    "• Intersection: Counts shared unique words.",
+    "• Union: Counts total combined unique words.",
+    "• Dividing intersection by union outputs Jaccard percentage.",
     "• Highly effective at catching copied vocabulary sets."
 ])
 
@@ -678,52 +623,63 @@ code_jaccard = [
 ]
 add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_jaccard, font_size=11)
 
-# --------------------------------------------------
-# SLIDE 25: DOCUMENT COMPARISON
-# --------------------------------------------------
+# ==================================================
+# SLIDE 23: DUPLICATE DETECTION LOGIC
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "24. Document Comparison & Highlighting")
+add_title(slide, "22. Duplicate Detection Logic & Thresholds")
+add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
+    "• Combined Score: Calculates the average of Cosine Similarity and Jaccard Index score.",
+    "• Severity Warning Classifications in JavaScript:",
+    "  - 90% - 100%: Direct Copy / Duplicate (Red Color)",
+    "  - 70% - 89%: Highly Similar (Orange Color)",
+    "  - 40% - 69%: Moderately Similar (Yellow Color)",
+    "  - 15% - 39%: Slightly Similar (Blue Color)",
+    "  - Below 15%: Completely Unique (Green Color)"
+])
+
+# ==================================================
+# SLIDE 24: DOCUMENT COMPARISON
+# ==================================================
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+set_slide_background(slide)
+add_title(slide, "23. Document Comparison Preview")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
-    "• Combination Index: Computes the average of Cosine Similarity and Jaccard Index score for balanced output.",
-    "• Word-Level Match Highlighter:",
-    "  - Converts strings to word lists.",
-    "  - Checks if a word in Document A exists in the vocabulary set of Document B.",
-    "  - Wraps matches in orange highlight spans.",
-    "• Citation Filter: Ignores quoted phrases dynamically."
+    "• Visual Word Diff: Highlight algorithm checks if a word in Document A exists in the vocabulary set of Document B.",
+    "• Matches are wrapped in custom span elements.",
+    "• Orange Highlights: Identifies identical matching words in both documents.",
+    "• Clipboard integration: Copy buttons to extract matching strings in one click."
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "diff_highlights.png")
 
-# --------------------------------------------------
-# SLIDE 26: SIMILARITY RESULTS
-# --------------------------------------------------
+# ==================================================
+# SLIDE 25: SIMILARITY RESULTS
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "25. Similarity Results & Status")
+add_title(slide, "24. Similarity Results Dashboard")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
-    "• Classification ranges based on combined score:",
-    "  - 90%+ : Direct Copy / Duplicate (Red)",
-    "  - 70% - 89% : Highly Similar (Orange)",
-    "  - 40% - 69% : Moderately Similar (Yellow)",
-    "  - 15% - 39% : Slightly Similar (Blue)",
-    "  - <15% : Completely Unique (Green)",
-    "• Renders matching warning descriptions automatically."
+    "• Custom Score Gauge: Shows final similarity score inside the dynamic progress circle.",
+    "• Match Status Card: Displays text descriptions (e.g. 'Moderately Similar', 'Highly Similar').",
+    "• Word Count Stats: Renders exact word counts for both Document A and Document B.",
+    "• Visual preview: Displays the uploaded note photo directly in the column."
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "latest_ui_scan.png")
 
-# --------------------------------------------------
-# SLIDE 27: DATA VISUALIZATION
-# --------------------------------------------------
+# ==================================================
+# SLIDE 26: SIMILARITY VISUALIZATION
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "26. Data Visualization (Circle Gauge)")
+add_title(slide, "25. Similarity Visualization (SVG Gauge)")
 
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
-    "• Interactive SVG Circular progress ring.",
+    "• Circular progress ring rendered in inline SVG.",
     "• Circumference = 326.7px (radius = 52px).",
-    "• JavaScript calculates matching stroke-dashoffset.",
-    "• Smooth CSS transition filling animation.",
-    "• Accent color changes dynamically matching status levels."
+    "• JS computes dynamic stroke-dashoffset for score percentage.",
+    "• Smooth 1.5s CSS transition filling animation.",
+    "• Glow and circle colors update dynamically matching similarity severity levels."
 ])
 
 code_gauge = [
@@ -739,28 +695,27 @@ code_gauge = [
 ]
 add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_gauge, font_size=12)
 
-# --------------------------------------------------
-# SLIDE 28: USER INTERFACE
-# --------------------------------------------------
+# ==================================================
+# SLIDE 27: USER INTERFACE
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "27. User Interface Design")
+add_title(slide, "26. User Interface Design")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
-    "• Modern Glassmorphic style card layout.",
-    "• Background: Deep midnight slate-blue gradients.",
-    "• UI Accents: Neon glowing borders for result levels.",
+    "• Midnight Slate-Blue gradient background (`#0f172a` to `#1e293b`).",
+    "• Glassmorphic interface: Semi-transparent panels with background blur.",
     "• Google Fonts integration (Plus Jakarta Sans).",
-    "• Copy-to-clipboard and reset controls.",
-    "• Fully responsive layouts scaling on mobile devices."
+    "• Dual Column Previews with uploaded image display placeholders.",
+    "• Single OCR scanner mode and double comparison mode."
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "latest_ui_scan.png")
 
-# --------------------------------------------------
-# SLIDE 29: CODE IMPLEMENTATION HIGHLIGHTS
-# --------------------------------------------------
+# ==================================================
+# SLIDE 28: IMPLEMENTATION / CODE HIGHLIGHTS
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "28. Main Web Controller Logic")
+add_title(slide, "27. Main Web Controller Logic")
 
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(5.5), Inches(4.8), [
     "• Client-side controller routing in JS.",
@@ -787,12 +742,12 @@ code_main = [
 ]
 add_code_block(slide, Inches(6.5), Inches(1.8), Inches(6.08), Inches(4.2), code_main, font_size=11)
 
-# --------------------------------------------------
-# SLIDE 30: TESTING & VALIDATION
-# --------------------------------------------------
+# ==================================================
+# SLIDE 29: TESTING & VALIDATION
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "29. Testing & Validation")
+add_title(slide, "28. Testing & Validation")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
     "• Tested offline OCR extraction with handwritten note scans (Math mappings and functions).",
     "• Tested digital PDF extraction page-by-page to check text stream reconstruction.",
@@ -801,28 +756,42 @@ add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
 ])
 add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "scanned_notes.jpg")
 
-# --------------------------------------------------
-# SLIDE 31: ADVANTAGES, LIMITATIONS & FUTURE SCOPE
-# --------------------------------------------------
+# ==================================================
+# SLIDE 30: ADVANTAGES & LIMITATIONS
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
-add_title(slide, "30. Advantages, Limitations & Future Scope")
+add_title(slide, "29. Advantages & Limitations")
 add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
-    "• Advantages: Serverless, completely cost-free hosting, total document privacy (local runs).",
-    "• Limitations: Large files take longer to scan via browser CPU. Lack of database to store history.",
-    "• Future Scope:",
-    "  - Web Link compare support: input URL to check text against online web pages.",
-    "  - Multi-language OCR: dropdown to select Spanish, Hindi, or French scanning models.",
-    "  - PDF Report Export: client-side PDF compilation to save results offline."
+    "• Advantages:",
+    "  - 100% Serverless: Bypasses server maintenance fees and offline/online proxy socket blocks.",
+    "  - Data Privacy: Files are processed completely in the browser and never sent online.",
+    "  - Mobile Responsive: Renders cleanly on phones and tablets during presentations.",
+    "• Limitations:",
+    "  - CPU Bound: Heavy files take longer to scan via client-side JavaScript threads.",
+    "  - No Database: Similarity reports cannot be saved in a remote history database."
 ])
 
-# --------------------------------------------------
+# ==================================================
+# SLIDE 31: FUTURE SCOPE
+# ==================================================
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+set_slide_background(slide)
+add_title(slide, "30. Future Scope")
+add_bullets(slide, Inches(0.75), Inches(1.8), Inches(11.83), Inches(4.8), [
+    "• Multi-Language OCR: Add dropdown support for Spanish, Hindi, or French training models.",
+    "• Web Link comparisons: Paste direct URLs to fetch and check similarity against live websites.",
+    "• PDF report downloads: Compile plagiarism match reports directly in the browser to download offline.",
+    "• Sentence Embeddings: Integrate client-side Transformers (like ONNX) for semantic similarity matching."
+])
+
+# ==================================================
 # SLIDE 32: CONCLUSION
-# --------------------------------------------------
+# ==================================================
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide)
 
-# Conclusion Header
+# Header
 title_box = slide.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(11.83), Inches(0.8))
 tf = title_box.text_frame
 p = tf.paragraphs[0]
@@ -837,13 +806,13 @@ body_box = slide.shapes.add_textbox(Inches(0.75), Inches(2.5), Inches(11.83), In
 tf_body = body_box.text_frame
 tf_body.word_wrap = True
 p_b = tf_body.paragraphs[0]
-p_b.text = "We have successfully built a fully serverless, lightweight browser-based document scanner and similarity detector using Tesseract.js, PDF.js, and Mammoth.js.\n\nThe project demonstrates that advanced AI parsing and NLP comparison algorithms can run completely locally on consumer browser engines, eliminating the need for expensive GPU-hosting setups."
+p_b.text = "We have successfully built a fully serverless, client-side document similarity and duplicate detection system using Tesseract.js, PDF.js, and Mammoth.js.\n\nThe project demonstrates that advanced AI parsing and NLP comparison algorithms can run completely locally on consumer browser engines, eliminating the need for expensive GPU-hosting setups."
 p_b.font.name = 'Segoe UI'
 p_b.font.size = Pt(20)
 p_b.font.color.rgb = SILVER
 p_b.space_after = Pt(15)
 
-# Thank You Centered
+# Thank You
 thanks_box = slide.shapes.add_textbox(Inches(0.75), Inches(4.8), Inches(11.83), Inches(1.8))
 tf_t = thanks_box.text_frame
 p_t = tf_t.paragraphs[0]
@@ -857,8 +826,7 @@ p_t.font.color.rgb = CYAN
 # --------------------------------------------------
 # SAVE PRESENTATION (With robust fallback loops for locked files)
 # --------------------------------------------------
-import time
-base_name = "AI_Document_OCR_Scanner_Similarity_Detector_PBL"
+base_name = "AI_Based_Document_Similarity_Duplicate_Detection_NLP_PBL"
 out_path = os.path.join(project_dir, f"{base_name}.pptx")
 saved = False
 
