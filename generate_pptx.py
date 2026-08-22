@@ -23,7 +23,8 @@ screenshot_mapping = {
     "diff_highlights.png": "latest_ui_diff_1787324684761.png",
     "ocr_scan.png": "latest_ui_single_ocr_1787325431264.png",
     "scanned_notes.jpg": ".user_uploaded/media_1786947808389.jpg",
-    "system_workflow_diagram.jpg": "system_workflow_diagram_1787391164883.jpg"
+    "system_workflow_diagram.jpg": "system_workflow_diagram_1787391164883.jpg",
+    "college_logo.png": ".user_uploaded/media_1787391493749.png"
 }
 
 copied_screenshots = {}
@@ -296,21 +297,32 @@ for r in [r_br_k, r_br_v, r_sem_k, r_sem_v]:
     r.font.name = 'Segoe UI'
     r.font.size = Pt(17)
 
-# College
-coll_box = slide1.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
-tf_coll = coll_box.text_frame
-p_coll = tf_coll.paragraphs[0]
-p_coll.alignment = PP_ALIGN.CENTER
-r_coll_k = p_coll.add_run()
-r_coll_k.text = "COLLEGE: "
-r_coll_k.font.bold = True
-r_coll_k.font.color.rgb = CYAN
-r_coll_v = p_coll.add_run()
-r_coll_v.text = "B H Gardi College Of Engineering And Technology"
-r_coll_v.font.color.rgb = WHITE
-for r in [r_coll_k, r_coll_v]:
-    r.font.name = 'Segoe UI'
-    r.font.size = Pt(17)
+# College Logo Container
+logo_bg = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.66), Inches(5.1), Inches(6.0), Inches(1.3))
+logo_bg.fill.solid()
+logo_bg.fill.fore_color.rgb = WHITE
+logo_bg.line.color.rgb = CYAN
+logo_bg.line.width = Pt(1.5)
+
+logo_path = os.path.join(assets_dir, "college_logo.png")
+if os.path.exists(logo_path):
+    slide1.shapes.add_picture(logo_path, Inches(3.76), Inches(5.15), width=Inches(5.8), height=Inches(1.2))
+else:
+    # Text Fallback if file missing
+    coll_box = slide1.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
+    tf_coll = coll_box.text_frame
+    p_coll = tf_coll.paragraphs[0]
+    p_coll.alignment = PP_ALIGN.CENTER
+    r_coll_k = p_coll.add_run()
+    r_coll_k.text = "COLLEGE: "
+    r_coll_k.font.bold = True
+    r_coll_k.font.color.rgb = CYAN
+    r_coll_v = p_coll.add_run()
+    r_coll_v.text = "B H Gardi College Of Engineering And Technology"
+    r_coll_v.font.color.rgb = RGBColor(15, 23, 42) # dark text on white fallback container if drawn
+    for r in [r_coll_k, r_coll_v]:
+        r.font.name = 'Segoe UI'
+        r.font.size = Pt(17)
 
 # ==================================================
 # SLIDE 2: INTRODUCTION
