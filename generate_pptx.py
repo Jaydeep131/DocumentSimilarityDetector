@@ -22,7 +22,8 @@ screenshot_mapping = {
     "latest_ui_scan.png": "latest_ui_results_1787324446876.png",
     "diff_highlights.png": "latest_ui_diff_1787324684761.png",
     "ocr_scan.png": "latest_ui_single_ocr_1787325431264.png",
-    "scanned_notes.jpg": ".user_uploaded/media_1786947808389.jpg"
+    "scanned_notes.jpg": ".user_uploaded/media_1786947808389.jpg",
+    "system_workflow_diagram.jpg": "system_workflow_diagram_1787391164883.jpg"
 }
 
 copied_screenshots = {}
@@ -488,7 +489,7 @@ add_bullets(slide, Inches(0.75), Inches(1.8), Inches(6.0), Inches(4.8), [
     "• Calculate: Computes Cosine + Jaccard average match.",
     "• Render: Updates UI gauge and diff spans instantly."
 ])
-add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "ocr_scan.png")
+add_screenshot(slide, Inches(7.2), Inches(1.8), Inches(5.38), Inches(4.2), "system_workflow_diagram.jpg")
 
 # ==================================================
 # SLIDE 15: INPUT DATA / DOCUMENT INPUT
