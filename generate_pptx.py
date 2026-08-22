@@ -199,7 +199,7 @@ r_name_k.text = "NAME: "
 r_name_k.font.bold = True
 r_name_k.font.color.rgb = CYAN
 r_name_v = p_name.add_run()
-r_name_v.text = "Nimavat Jaydeep M."
+r_name_v.text = ""
 r_name_v.font.color.rgb = WHITE
 for r in [r_name_k, r_name_v]:
     r.font.name = 'Segoe UI'
@@ -229,7 +229,7 @@ r_en_k.text = "ENROLLMENT: "
 r_en_k.font.bold = True
 r_en_k.font.color.rgb = CYAN
 r_en_v = p_en.add_run()
-r_en_v.text = "250043107032"
+r_en_v.text = ""
 r_en_v.font.color.rgb = WHITE
 for r in [r_en_k, r_en_v]:
     r.font.name = 'Segoe UI'
