@@ -24,7 +24,8 @@ screenshot_mapping = {
     "ocr_scan.png": "latest_ui_single_ocr_1787325431264.png",
     "scanned_notes.jpg": ".user_uploaded/media_1786947808389.jpg",
     "system_workflow_diagram.jpg": "system_workflow_diagram_1787391164883.jpg",
-    "college_logo.png": ".user_uploaded/media_1787391493749.png"
+    "college_logo.png": ".user_uploaded/media_1787391493749.png",
+    "tech_circuit_background.jpg": ".user_uploaded/media_1787392239880.png"
 }
 
 copied_screenshots = {}
@@ -55,13 +56,20 @@ SLATE_CARD = RGBColor(255, 255, 255)   # White Card container (#ffffff)
 CODE_BG = RGBColor(10, 15, 29)         # Dark Charcoal Code editor background (#0a0f1d)
 
 def set_slide_background(slide, color=DARK_BG):
-    background = slide.background
-    fill = background.fill
-    fill.solid()
-    fill.fore_color.rgb = color
+    bg_path = os.path.join(assets_dir, "tech_circuit_background.jpg")
+    if os.path.exists(bg_path):
+        pic = slide.shapes.add_picture(bg_path, Inches(0), Inches(0), width=Inches(13.33), height=Inches(7.5))
+        # Send background to back
+        slide.shapes._spTree.remove(pic._element)
+        slide.shapes._spTree.insert(2, pic._element)
+    else:
+        background = slide.background
+        fill = background.fill
+        fill.solid()
+        fill.fore_color.rgb = color
 
 def add_title(slide, text, color=CYAN, size=32):
-    title_box = slide.shapes.add_textbox(Inches(0.75), Inches(0.5), Inches(11.83), Inches(0.8))
+    title_box = slide.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(8.5), Inches(0.8))
     tf = title_box.text_frame
     tf.word_wrap = True
     p = tf.paragraphs[0]
@@ -71,6 +79,11 @@ def add_title(slide, text, color=CYAN, size=32):
     p.font.bold = True
     p.font.color.rgb = color
     tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
+
+    # Add College Logo to the top-right corner of content slides
+    logo_path = os.path.join(assets_dir, "college_logo.png")
+    if os.path.exists(logo_path):
+        slide.shapes.add_picture(logo_path, Inches(9.2), Inches(0.3), width=Inches(3.4), height=Inches(0.75))
 
 def add_bullets(slide, left, top, width, height, bullets, size=18, color=SILVER):
     txBox = slide.shapes.add_textbox(left, top, width, height)
@@ -175,148 +188,85 @@ def add_screenshot(slide, left, top, width, height, filename):
 slide1 = prs.slides.add_slide(prs.slide_layouts[6])
 set_slide_background(slide1)
 
-title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.2), Inches(11.83), Inches(1.4))
-tf = title_box.text_frame
-tf.word_wrap = True
-p = tf.paragraphs[0]
-p.alignment = PP_ALIGN.CENTER
-p.text = "AI-Based Document Similarity & Duplicate Detection System Using NLP"
-p.font.name = 'Segoe UI'
-p.font.size = Pt(28)
-p.font.bold = True
-p.font.color.rgb = CYAN
-
-p_sub = tf.add_paragraph()
-p_sub.alignment = PP_ALIGN.CENTER
-p_sub.text = "AI-Based Document Processing Using OCR, NLP and Similarity Analysis\nPBL Task 2"
-p_sub.font.name = 'Segoe UI'
-p_sub.font.size = Pt(16)
-p_sub.font.color.rgb = SILVER
-p_sub.space_before = Pt(4)
-
-# Subject Text Block
-subj_box = slide1.shapes.add_textbox(Inches(0.75), Inches(1.8), Inches(11.83), Inches(0.8))
-tf_subj = subj_box.text_frame
-tf_subj.word_wrap = True
-p_subj = tf_subj.paragraphs[0]
-p_subj.alignment = PP_ALIGN.CENTER
-
-run1 = p_subj.add_run()
-run1.text = "Subject: "
-run1.font.name = 'Segoe UI'
-run1.font.size = Pt(18)
-run1.font.bold = True
-run1.font.color.rgb = CYAN
-
-run2 = p_subj.add_run()
-run2.text = "Python for Data Science (BE05000231)"
-run2.font.name = 'Segoe UI'
-run2.font.size = Pt(18)
-run2.font.bold = True
-run2.font.color.rgb = WHITE
-
-# Card block for student details
-card = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(2.7), Inches(11.83), Inches(4.1))
-card.fill.solid()
-card.fill.fore_color.rgb = SLATE_CARD
-card.line.color.rgb = RGBColor(71, 85, 105)
-card.line.width = Pt(1.5)
-
-# Student 1
-s1_box = slide1.shapes.add_textbox(Inches(1.2), Inches(2.9), Inches(5.0), Inches(1.1))
-tf_s1 = s1_box.text_frame
-tf_s1.word_wrap = True
-p_s1_n = tf_s1.paragraphs[0]
-r1_n_k = p_s1_n.add_run()
-r1_n_k.text = "NAME 1: "
-r1_n_k.font.bold = True
-r1_n_k.font.color.rgb = CYAN
-r1_n_v = p_s1_n.add_run()
-r1_n_v.text = "Nimavat Jaydeep M."
-r1_n_v.font.color.rgb = WHITE
-
-p_s1_e = tf_s1.add_paragraph()
-p_s1_e.space_before = Pt(4)
-r1_e_k = p_s1_e.add_run()
-r1_e_k.text = "ENROLLMENT 1: "
-r1_e_k.font.bold = True
-r1_e_k.font.color.rgb = CYAN
-r1_e_v = p_s1_e.add_run()
-r1_e_v.text = "250043107032"
-r1_e_v.font.color.rgb = WHITE
-
-# Student 2
-s2_box = slide1.shapes.add_textbox(Inches(6.8), Inches(2.9), Inches(5.0), Inches(1.1))
-tf_s2 = s2_box.text_frame
-tf_s2.word_wrap = True
-p_s2_n = tf_s2.paragraphs[0]
-r2_n_k = p_s2_n.add_run()
-r2_n_k.text = "NAME 2: "
-r2_n_k.font.bold = True
-r2_n_k.font.color.rgb = CYAN
-r2_n_v = p_s2_n.add_run()
-r2_n_v.text = "Upadhyay Hitarth S."
-r2_n_v.font.color.rgb = WHITE
-
-p_s2_e = tf_s2.add_paragraph()
-p_s2_e.space_before = Pt(4)
-r2_e_k = p_s2_e.add_run()
-r2_e_k.text = "ENROLLMENT 2: "
-r2_e_k.font.bold = True
-r2_e_k.font.color.rgb = CYAN
-r2_e_v = p_s2_e.add_run()
-r2_e_v.text = "250043107050"
-r2_e_v.font.color.rgb = WHITE
-
-for r in [r1_n_k, r1_n_v, r1_e_k, r1_e_v, r2_n_k, r2_n_v, r2_e_k, r2_e_v]:
-    r.font.name = 'Segoe UI'
-    r.font.size = Pt(17)
-
-# Class Details
-class_box = slide1.shapes.add_textbox(Inches(1.2), Inches(4.3), Inches(10.9), Inches(0.6))
-tf_class = class_box.text_frame
-p_class = tf_class.paragraphs[0]
-p_class.alignment = PP_ALIGN.CENTER
-r_br_k = p_class.add_run()
-r_br_k.text = "BRANCH: "
-r_br_k.font.bold = True
-r_br_k.font.color.rgb = CYAN
-r_br_v = p_class.add_run()
-r_br_v.text = "Computer Engineering     |     "
-r_br_v.font.color.rgb = WHITE
-
-r_sem_k = p_class.add_run()
-r_sem_k.text = "SEMESTER: "
-r_sem_k.font.bold = True
-r_sem_k.font.color.rgb = CYAN
-r_sem_v = p_class.add_run()
-r_sem_v.text = "5th"
-r_sem_v.font.color.rgb = WHITE
-
-for r in [r_br_k, r_br_v, r_sem_k, r_sem_v]:
-    r.font.name = 'Segoe UI'
-    r.font.size = Pt(17)
-
-# College Logo (Placed directly on details card)
+# College Logo (Top-Right)
 logo_path = os.path.join(assets_dir, "college_logo.png")
 if os.path.exists(logo_path):
-    slide1.shapes.add_picture(logo_path, Inches(3.76), Inches(5.1), width=Inches(5.8), height=Inches(1.2))
-else:
-    # Text Fallback if file missing
-    coll_box = slide1.shapes.add_textbox(Inches(1.2), Inches(5.1), Inches(10.9), Inches(0.6))
-    tf_coll = coll_box.text_frame
-    p_coll = tf_coll.paragraphs[0]
-    p_coll.alignment = PP_ALIGN.CENTER
-    r_coll_k = p_coll.add_run()
-    r_coll_k.text = "COLLEGE: "
-    r_coll_k.font.bold = True
-    r_coll_k.font.color.rgb = CYAN
-    r_coll_v = p_coll.add_run()
-    r_coll_v.text = "B H Gardi College Of Engineering And Technology"
-    r_coll_v.font.color.rgb = WHITE
-    for r in [r_coll_k, r_coll_v]:
-        r.font.name = 'Segoe UI'
-        r.font.size = Pt(17)
+    slide1.shapes.add_picture(logo_path, Inches(8.33), Inches(0.4), width=Inches(4.3), height=Inches(0.9))
+
+# Main Title (Center-Left aligned)
+title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(2.2), Inches(11.83), Inches(1.8))
+tf = title_box.text_frame
+tf.word_wrap = True
+tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
+p = tf.paragraphs[0]
+p.alignment = PP_ALIGN.LEFT
+p.text = "AI-Based Document Similarity & Duplicate\nDetection System Using NLP"
+p.font.name = 'Segoe UI'
+p.font.size = Pt(36)
+p.font.bold = True
+p.font.color.rgb = RGBColor(30, 58, 138)  # Deep Royal Blue (#1e3a8a)
+
+# Subject Line (Left-aligned sky blue)
+p_sub = tf.add_paragraph()
+p_sub.alignment = PP_ALIGN.LEFT
+p_sub.text = "SUBJECT: PYTHON FOR DATA SCIENCE (BE05000231)"
+p_sub.font.name = 'Segoe UI'
+p_sub.font.size = Pt(20)
+p_sub.font.bold = True
+p_sub.font.color.rgb = RGBColor(14, 165, 233)  # Sky Blue (#0ea5e9)
+p_sub.space_before = Pt(8)
+
+# Presented By (Bottom Left)
+pres_box = slide1.shapes.add_textbox(Inches(0.75), Inches(4.8), Inches(5.5), Inches(2.0))
+tf_pres = pres_box.text_frame
+tf_pres.word_wrap = True
+tf_pres.margin_left = tf_pres.margin_top = tf_pres.margin_right = tf_pres.margin_bottom = 0
+p_pres = tf_pres.paragraphs[0]
+p_pres.text = "Presented By:"
+p_pres.font.name = 'Segoe UI'
+p_pres.font.size = Pt(17)
+p_pres.font.bold = True
+p_pres.font.color.rgb = RGBColor(15, 23, 42)  # slate-900
+
+p_s1 = tf_pres.add_paragraph()
+p_s1.text = "Nimavat Jaydeep M.\nEnrollment: 250043107032"
+p_s1.font.name = 'Segoe UI'
+p_s1.font.size = Pt(16)
+p_s1.font.color.rgb = RGBColor(71, 85, 105)  # slate-600
+p_s1.space_before = Pt(6)
+
+p_s2 = tf_pres.add_paragraph()
+p_s2.text = "Upadhyay Hitarth S.\nEnrollment: 250043107050"
+p_s2.font.name = 'Segoe UI'
+p_s2.font.size = Pt(16)
+p_s2.font.color.rgb = RGBColor(71, 85, 105)  # slate-600
+p_s2.space_before = Pt(6)
+
+# Branch & Semester (Bottom Right)
+branch_box = slide1.shapes.add_textbox(Inches(7.25), Inches(4.8), Inches(5.0), Inches(2.0))
+tf_branch = branch_box.text_frame
+tf_branch.word_wrap = True
+tf_branch.margin_left = tf_branch.margin_top = tf_branch.margin_right = tf_branch.margin_bottom = 0
+p_br = tf_branch.paragraphs[0]
+p_br.text = "Branch & Semester:"
+p_br.font.name = 'Segoe UI'
+p_br.font.size = Pt(17)
+p_br.font.bold = True
+p_br.font.color.rgb = RGBColor(15, 23, 42)  # slate-900
+
+p_br_v = tf_branch.add_paragraph()
+p_br_v.text = "Computer Engineering (CE)\nSemester: 5"
+p_br_v.font.name = 'Segoe UI'
+p_br_v.font.size = Pt(16)
+p_br_v.font.color.rgb = RGBColor(71, 85, 105)  # slate-600
+p_br_v.space_before = Pt(6)
+
+p_coll = tf_branch.add_paragraph()
+p_coll.text = "College:\nB H Gardi College Of Engineering & Technology"
+p_coll.font.name = 'Segoe UI'
+p_coll.font.size = Pt(16)
+p_coll.font.color.rgb = RGBColor(71, 85, 105)  # slate-600
+p_coll.space_before = Pt(6)
 
 # ==================================================
 # SLIDE 2: INTRODUCTION
