@@ -824,30 +824,35 @@ p_t.font.bold = True
 p_t.font.color.rgb = CYAN
 
 # --------------------------------------------------
-# SAVE PRESENTATION (With robust fallback loops for locked files)
+# SAVE PRESENTATION (To both output file paths with robust fallbacks)
 # --------------------------------------------------
-base_name = "AI_Based_Document_Similarity_Duplicate_Detection_NLP_PBL"
-out_path = os.path.join(project_dir, f"{base_name}.pptx")
-saved = False
+import time
+dest_filenames = [
+    "AI_Based_Document_Similarity_Duplicate_Detection_NLP_PBL",
+    "AI_Document_OCR_Scanner_Similarity_Detector_PBL"
+]
 
-try:
-    prs.save(out_path)
-    print(f"Presentation saved successfully to {out_path}")
-    saved = True
-except PermissionError:
-    pass
-
-if not saved:
-    alt_path = os.path.join(project_dir, f"{base_name}_v2.pptx")
+for base_name in dest_filenames:
+    out_path = os.path.join(project_dir, f"{base_name}.pptx")
+    saved = False
     try:
-        prs.save(alt_path)
-        print(f"WARNING: original file locked. Saved alternative version successfully to: {alt_path}")
+        prs.save(out_path)
+        print(f"Presentation saved successfully to {out_path}")
         saved = True
     except PermissionError:
         pass
 
-if not saved:
-    timestamp = int(time.time())
-    timestamp_path = os.path.join(project_dir, f"{base_name}_{timestamp}.pptx")
-    prs.save(timestamp_path)
-    print(f"WARNING: Both original and v2 files are locked! Saved with timestamp to: {timestamp_path}")
+    if not saved:
+        alt_path = os.path.join(project_dir, f"{base_name}_v2.pptx")
+        try:
+            prs.save(alt_path)
+            print(f"WARNING: original file locked. Saved alternative version successfully to: {alt_path}")
+            saved = True
+        except PermissionError:
+            pass
+
+    if not saved:
+        timestamp = int(time.time())
+        timestamp_path = os.path.join(project_dir, f"{base_name}_{timestamp}.pptx")
+        prs.save(timestamp_path)
+        print(f"WARNING: Both original and v2 files are locked! Saved with timestamp to: {timestamp_path}")
